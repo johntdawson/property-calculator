@@ -3,13 +3,13 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "com.phonegap.investmentpropertycalculator"
+        id        = "com.phonegap.propertycalculator"
         version   = "1.0.0">
 
-    <name>Investment Property Calculator</name>
+    <name>Property Calculator</name>
 
     <description>
-        Investment
+        Real Estate Investment Property Calculator for calculating real estate cash flow and equity potential.
     </description>
 
     <author href="http://www.dawsoninteractive.com" email="info@dawsoninteractive.com">
