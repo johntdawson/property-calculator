@@ -26,13 +26,11 @@
 	<script src="js/jquery.mobile-1.4.3.min.js"></script>
 	<script src="js/jquery.mask.js"></script>
   <script>
-    $( document ).ready(function() {
-
-alert(localStorage.myname);
+    $( document ).ready(function() {    
 
       // Auto-fill sample data
       $('.ui-icon-logo').click(function() {
-        $("a[href='#estimatedPropertyValue'] span.value").html('127,500');
+        $("a[href='#estimatedPropertyValue'] span.value").html(localStorage.estimatedPropertyValue);
         $("a[href='#purchasePrice'] span.value").html('107,500');
         $("a[href='#downPaymentPercent'] span.value").html('20');
         $("a[href='#mortgageInterestRate'] span.value").html('5.0');
@@ -49,9 +47,6 @@ alert(localStorage.myname);
         $("a[href='#rentalIncrease'] span.value").html('0');
         $("a[href='#propertyTaxIncrease'] span.value").html('0');
         calculate();
-
-        localStorage.myname = "Greg";
-
       });
 
       // Focus input field
@@ -127,6 +122,10 @@ alert(localStorage.myname);
         $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(1));
         $("a[href='#capRate'] span.value").html(capRate.toFixed(1));
         $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears.toFixed(0)).mask('000,000,000', {reverse: true});
+
+        // Save Values
+        localStorage.estimatedPropertyValue = estimatedPropertyValue;
+
       }
       
       // Clean number
@@ -240,7 +239,7 @@ MAIN
     <div data-role="controlgroup" data-type="horizontal">
       <a href="#" class="ui-btn ui-icon-calculator ui-btn-icon-left">Calculator</a>
       <a href="#" class="ui-btn ui-icon-bars ui-btn-icon-left">Properties</a>
-      <a href="#" class="ui-btn ui-icon-plus ui-btn-icon-left">Add</a>
+      <a id="save" href="#" class="ui-btn ui-icon-plus ui-btn-icon-left">Save</a>
     </div>
 	</div><!-- /footer -->
 
