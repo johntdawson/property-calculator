@@ -66,7 +66,7 @@
 
       // Input mask (http://igorescobar.github.io/jQuery-Mask-Plugin/)
       $('.money').mask('000,000,000', {reverse: true});
-      $('.percent').mask('0Z.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}});
+      //$('.percent').mask('0Z.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}});
       $('.term').mask('00', {reverse: true});
       
       // Calculate Values
@@ -105,20 +105,20 @@
         var equityInFiveYears = Math.round( propertyValueYear5 - ( loanAmount - BalancePaid( mortgagePayment, ( mortgageInterestRate / 100 ), loanAmount, 60 ) ) );
 
         // Update Values
-        $("a[href='#downPayment'] span.value").html(downPayment).mask('000,000,000', {reverse: true});
-        $("a[href='#equityAtPurchase'] span.value").html(equityAtPurchase).mask('000,000,000', {reverse: true});
-        $("a[href='#loanAmount'] span.value").html(loanAmount).mask('000,000,000', {reverse: true});
-        $("a[href='#closingCosts'] span.value").html(closingCosts).mask('000,000,000', {reverse: true});
-        $("a[href='#cashAtClosing'] span.value").html(cashAtClosing).mask('000,000,000', {reverse: true});
-        $("a[href='#mortgagePayment'] span.value").html(mortgagePayment).mask('000,000,000', {reverse: true});
-        $("a[href='#mortgagePaymentYearly'] span.value").html(mortgagePaymentYearly).mask('000,000,000', {reverse: true});
-        $("a[href='#propertyManagement'] span.value").html(propertyManagement).mask('000,000,000', {reverse: true});
-        $("a[href='#maintenanceReserve'] span.value").html(maintenanceReserve).mask('000,000,000', {reverse: true});
-        $("a[href='#vacancyAllowance'] span.value").html(vacancyAllowance).mask('000,000,000', {reverse: true});
-        $("a[href='#monthlyCashFlow'] span.value").html(monthlyCashFlow).mask('000,000,000', {reverse: true});
+        $("a[href='#downPayment'] span.value").html(downPayment.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#equityAtPurchase'] span.value").html(equityAtPurchase.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#loanAmount'] span.value").html(loanAmount.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#closingCosts'] span.value").html(closingCosts.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#cashAtClosing'] span.value").html(cashAtClosing.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#mortgagePayment'] span.value").html(mortgagePayment.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#mortgagePaymentYearly'] span.value").html(mortgagePaymentYearly.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#propertyManagement'] span.value").html(propertyManagement.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#maintenanceReserve'] span.value").html(maintenanceReserve.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#vacancyAllowance'] span.value").html(vacancyAllowance.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#monthlyCashFlow'] span.value").html(monthlyCashFlow.toFixed(0)).mask('000,000,000', {reverse: true});
         $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(1));
         $("a[href='#capRate'] span.value").html(capRate.toFixed(1));
-        $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears).mask('000,000,000', {reverse: true});
+        $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears.toFixed(0)).mask('000,000,000', {reverse: true});
       }
       
       // Clean number
@@ -255,8 +255,8 @@ ESTIMATED PROPERTY VALUE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Estimated Property Value</label>
-    <input id="testinput" class="key money" name="number" id="number-pattern" value="" type="text" placeholder="$">
-    <p>Description goes here...</p>
+    <input id="testinput" class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
+    <p>The estimated property value can be determined from comparable property sales, Multiple Listing Service (MLS) data, appraisal reports, public records, etc. This figure is used as a baseline amount to estimate equity yet is not used to estimate cash flow.</p>
 
 	</div><!-- /content -->
 
@@ -277,8 +277,8 @@ PURCHASE PRICE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Purchase Price</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="text" placeholder="$">
-    <p>Description goes here...</p>
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
+    <p>The purchase price is the listed price, seller's price, or the anticipated cost of purchasing the property.</p>
 
 	</div><!-- /content -->
 
@@ -294,13 +294,15 @@ DOWN PAYMENT
 <div data-role="page" id="downPayment" data-theme="a">
 
 	<div data-role="header">
-		<h1>Input</h1>
+		<h1>Calculation</h1>
 	</div><!-- /header -->
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Down Payment</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="text" placeholder="$" disabled="disabled">
-    <p>Description goes here...</p>
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$" disabled="disabled">
+    <p>For lender-financed properties, the down payment is the initial upfront portion of the total amount due and it is usually given in cash at the time of closing. A 20% down payment is typical for investment properties.</p>
+    <p>Click the button below to enter a down payment percentage:</p>    
+    <a href="#downPaymentPercent" data-rel="dialog" class="ui-btn ui-icon-gear ui-btn-icon-left">Down Payment Percent</a>
 
 	</div><!-- /content -->
 
@@ -321,7 +323,7 @@ EQUITY AT PURCHASE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Equity At Purchase</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="text" placeholder="$" disabled="disabled">
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$" disabled="disabled">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -343,7 +345,7 @@ DOWN PAYMENT PERCENT
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Down Payment Percentage</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="text" placeholder="%">
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -365,7 +367,7 @@ MORTGAGE INTEREST RATE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Mortgage Interest Rate</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="text" placeholder="%">
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -387,7 +389,7 @@ MORTGAGE LOAN TERM
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Mortgage Loan Term</label>
-    <input class="key term" name="number" id="number-pattern" value="30" type="text" placeholder="Loan Term in Years">
+    <input class="key term" name="number" id="number-pattern" value="30" type="tel" placeholder="Loan Term in Years">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -409,7 +411,7 @@ CLOSING COSTS PERCENT
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Closing Costs Percentage</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="text" placeholder="%">
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -431,7 +433,7 @@ RENTAL INCOME
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Rental Income</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="text" placeholder="$">
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -453,7 +455,7 @@ PROPERTY TAXES
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Property Taxes</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="text" placeholder="$">
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -475,7 +477,7 @@ PROPERTY INSURANCE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Property Insurance</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="text" placeholder="$">
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -497,7 +499,7 @@ HOMEOWNERS ASSOCIATION
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Homeowners Association</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="text" placeholder="$">
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -519,7 +521,7 @@ PROPERTY MANAGEMENT
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Property Management</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="text" placeholder="%">
+    <input class="key percent" name="number" id="number-pattern" value="" type="tel" placeholder="%">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -541,7 +543,7 @@ MAINTENANCE RESERVE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Maintenance Reserve</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="text" placeholder="%">
+    <input class="key percent" name="number" id="number-pattern" value="" type="tel" placeholder="%">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -563,7 +565,7 @@ VACANCY ALLOWANCE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Vacancy Allowance</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="text" placeholder="%">
+    <input class="key percent" name="number" id="number-pattern" value="" type="tel" placeholder="%">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -585,7 +587,7 @@ APPRECIATION RATE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Appreciation Rate</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="text" placeholder="%">
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -607,7 +609,7 @@ RENTAL INCREASE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Rental Increase</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="text" placeholder="%">
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
@@ -629,7 +631,7 @@ PROPERTY TAX INCREASE
 
 	<div role="main" class="ui-content">
     <label for="number-pattern">Property Tax Increase</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="text" placeholder="%">
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
     <p>Description goes here...</p>
 
 	</div><!-- /content -->
