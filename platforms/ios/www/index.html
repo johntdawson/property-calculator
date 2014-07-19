@@ -17,17 +17,20 @@
     .money:before { content:"$" }
     .percent:after { content:"%" }
     .ui-icon-calculator:after { background-image: url("img/calculator-white.svg"); }
-    #summary h2 a { background-color: #2ad; border-color: #2ad; color: #fff; text-shadow: 0 1px 0 #08b; }
+    .ui-icon-logo:after { background-image: url("img/logo-white.svg"); }
+    .ui-header-fixed, .ui-footer-fixed { background-color: #2ad; border-color: #2ad; color: #fff; text-shadow: 0 1px 0 #08b; }
+    #summary h2 a { background-color: #29e3b4; border-color: #29e3b4; color: #fff; text-shadow: 0 1px 0 #08b; }
+    .ui-li-divider { background-color: #2ad; border-color: #2ad; color: #fff; text-shadow: 0 1px 0 #08b; }
   </style>
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.mobile-1.4.3.min.js"></script>
 	<script src="js/jquery.mask.js"></script>
   <script>
-    $( document ).ready(function() {
+    $( document ).ready(function() {    
 
       // Auto-fill sample data
-      $('.ui-icon-calculator').click(function() {
-        $("a[href='#estimatedPropertyValue'] span.value").html('127,500');
+      $('.ui-icon-logo').click(function() {
+        $("a[href='#estimatedPropertyValue'] span.value").html(localStorage.estimatedPropertyValue);
         $("a[href='#purchasePrice'] span.value").html('107,500');
         $("a[href='#downPaymentPercent'] span.value").html('20');
         $("a[href='#mortgageInterestRate'] span.value").html('5.0');
@@ -119,6 +122,10 @@
         $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(1));
         $("a[href='#capRate'] span.value").html(capRate.toFixed(1));
         $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears.toFixed(0)).mask('000,000,000', {reverse: true});
+
+        // Save Values
+        localStorage.estimatedPropertyValue = estimatedPropertyValue;
+
       }
       
       // Clean number
@@ -155,8 +162,8 @@ MAIN
 ---------------------------------------->
 <div data-role="page" id="main">
 
-	<div data-role="header" data-theme="b" data-position="fixed">
-    <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-calculator ui-btn-icon-left ui-btn-icon-notext">Calculator</a>
+	<div data-role="header" data-theme="a" data-position="fixed">
+    <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-logo ui-btn-icon-left ui-btn-icon-notext" style="background-color: #2ad;">Calculator</a>
 		<h1>Property Calculator</h1>
 	</div><!-- /header -->
 
@@ -171,20 +178,14 @@ MAIN
         <li data-icon="info"><a href="#equityAtPurchase" data-rel="dialog">Equity at Purchase<span class="value money">0</span></a></li>
       </ul>
     </div>
-    
+        
     <div data-role="collapsible" data-theme="b" data-content-theme="a">
-      <h2>Cash At Closing</h2>
+      <h2>Mortgage Calculations</h2>
       <ul data-role="listview">
         <li data-icon="info"><a href="#loanAmount" data-rel="dialog">Loan Amount<span class="value money">0</span></a></li>
         <li data-icon="info"><a href="#downPayment" data-rel="dialog">Down Payment<span class="value money">0</span></a></li>
         <li data-icon="info"><a href="#closingCosts" data-rel="dialog">Closing Costs<span class="value money">0</span></a></li>
         <li data-icon="info"><a href="#cashAtClosing" data-rel="dialog">Cash at Closing<span class="value money">0</span></a></li>
-      </ul>
-    </div>
-    
-    <div data-role="collapsible" data-theme="b" data-content-theme="a">
-      <h2>Mortgage Calculations</h2>
-      <ul data-role="listview">
         <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money">0</span></a></li>
         <li data-icon="info"><a href="#mortgagePaymentYearly" data-rel="dialog">Mortgage Payment Yearly<span class="value money">0</span></a></li>
       </ul>
@@ -222,8 +223,12 @@ MAIN
       </ul>
     </div>    
 
-    <div id="summary" data-role="collapsible" data-theme="b" data-content-theme="a">
-      <h2>Performance Summary</h2>
+
+    
+	</div><!-- /content -->
+
+	<div id="footer" data-role="footer" data-theme="b" data-position="fixed">
+    <div id="summary" data-role="" data-theme="a" data-content-theme="a">
       <ul data-role="listview">
         <li data-icon="info"><a href="#monthlyCashFlow" data-rel="dialog">Monthly Cash Flow<span class="value money">0</span></a></li>        
         <li data-icon="info"><a href="#capRate" data-rel="dialog">Cap Rate<span class="value percent">0</span></a></li>
@@ -231,14 +236,10 @@ MAIN
         <li data-icon="info"><a href="#equityInFiveYears" data-rel="dialog">Equity in Five Years<span class="value money">0</span></a></li>
       </ul>
     </div>
-    
-	</div><!-- /content -->
-
-	<div id="footer" data-role="footer" data-theme="b" data-position="fixed">
     <div data-role="controlgroup" data-type="horizontal">
       <a href="#" class="ui-btn ui-icon-calculator ui-btn-icon-left">Calculator</a>
       <a href="#" class="ui-btn ui-icon-bars ui-btn-icon-left">Properties</a>
-      <a href="#" class="ui-btn ui-icon-plus ui-btn-icon-left">Add</a>
+      <a id="save" href="#" class="ui-btn ui-icon-plus ui-btn-icon-left">Save</a>
     </div>
 	</div><!-- /footer -->
 
