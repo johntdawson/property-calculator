@@ -20,23 +20,103 @@
     .ui-icon-logo:after { background-image: url("img/logo-white.svg"); }
     .ui-header-fixed, .ui-footer-fixed { background-color: #2ad; border-color: #2ad; color: #fff; text-shadow: 0 1px 0 #08b; }
     #summary h2 a { background-color: #29e3b4; border-color: #29e3b4; color: #fff; text-shadow: 0 1px 0 #08b; }
-    .ui-li-divider { background-color: #2ad; border-color: #2ad; color: #fff; text-shadow: 0 1px 0 #08b; }
+    .ui-li-divider { background-color: #ccc; border-color: #eaeaea; color: #666; text-shadow: none; font-weight: normal; }
   </style>
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.mobile-1.4.3.min.js"></script>
 	<script src="js/jquery.mask.js"></script>
   <script>
-    $( document ).ready(function() {    
+    $(document).on( "pagecreate", function() {
+
+      // Remember scroll position
+      $( document ).delegate("#main", "pagebeforeshow", function() {
+        $('li').on('click', function(){
+          scrollPosition = $(document).scrollTop();
+        });
+      });
+      $( document ).delegate("#main", "pageshow", function() {
+          if(scrollPosition !== null) {
+            $.mobile.silentScroll(scrollPosition);
+          }
+      });
+      var scrollPosition = null;
+
+      // Calculate
+      calculate();
+
+      // Create page for each list item
+      $('body').on( "click", '.page li a', function(e) {
+        $('.ui-dialog-temp').remove(); //garbage collection
+        href = $(this).attr('href').replace("#" , "");
+        createPage(page[href]);
+      });
+
+      createPage = function(page) {
+
+        // Create pages with input fields
+        if (page.type=='input') {
+          $('body').append(
+            '<div data-role="page" id="' + page.id + '" class="ui-dialog-temp" data-theme="a">' +
+            '	<div data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">' +
+            '   <a class="ui-btn ui-btn-icon-left ui-icon-carat-l ui-btn-icon-notext ui-corner-all" href="#'+page.back+'" data-transition="slidefade" data-direction="reverse">Back</a>' +
+            '		<h1>' + page.title + '</h1>' +
+            '   <a id="save" class="ui-btn ui-btn-right ui-icon-check ui-btn-icon-notext ui-corner-all" href="#'+page.back+'" data-transition="slidefade" data-direction="reverse">Save</a>' +
+            '	</div>' +
+            '	<div role="main" class="ui-content">' +
+            '   <input class="inputvalue '+page.mask+'" name="number" pattern="[0-9]*" id="number-pattern" value="'+page.value+'" type="text" data-clear-btn="true">' +
+            page.content +
+            '	</div>' +
+            '</div>'
+          );
+
+          // Input mask (http://igorescobar.github.io/jQuery-Mask-Plugin)
+          $('.currency').mask('000,000,000', {reverse: true});
+          $('.percent').mask('0Z.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}});
+          $('.years').mask('00', {reverse: true});
+          
+          // Bind enter key to specific button on page if input focused
+          $(document).keypress(function(e){
+            if (e.which == 13 && $(".inputvalue").is(":focus") ){
+              $("#save").click();
+            }
+          });
+
+        }
+
+        // Create pages with info dialogs
+        if (page.type=='info') {
+          $('body').append(
+            '<div data-role="page" id="' + page.id + '" class="ui-dialog-temp" data-theme="a">' +
+            '	<div data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">' +
+            '		<h1>' + page.title + '</h1>' +
+            '	</div>' +
+            '	<div role="main" class="ui-content">' +
+            page.content +
+            '	</div>' +
+            '</div>'
+          );
+        }
+
+      }
+
+      // Submit input values
+      $('body').on( "click", "#save", function(e) {
+        var key = $(this).parent().parent().attr('id');
+        var value = $('#'+key+' .inputvalue').val();
+        $("a[href='#"+key+"'] span.value").html(value);
+        calculate();
+      });
+
 
       // Auto-fill sample data
-      $('.ui-icon-logo').click(function() {
-        $("a[href='#estimatedPropertyValue'] span.value").html(localStorage.estimatedPropertyValue);
-        $("a[href='#purchasePrice'] span.value").html('107,500');
+      //$('.ui-icon-calculator').click(function() {
+        $("a[href='#estimatedPropertyValue'] span.value").html('100000');
+        $("a[href='#purchasePrice'] span.value").html('50000');
         $("a[href='#downPaymentPercent'] span.value").html('20');
         $("a[href='#mortgageInterestRate'] span.value").html('5.0');
         $("a[href='#mortgageLoanTerm'] span.value").html('30');
         $("a[href='#closingCostsPercent'] span.value").html('5.0');
-        $("a[href='#rentalIncome'] span.value").html('1,150');
+        $("a[href='#rentalIncome'] span.value").html('900');
         $("a[href='#propertyTaxes'] span.value").html('193');
         $("a[href='#propertyInsurance'] span.value").html('50');
         $("a[href='#homeownersAssociation'] span.value").html('0');
@@ -47,91 +127,70 @@
         $("a[href='#rentalIncrease'] span.value").html('0');
         $("a[href='#propertyTaxIncrease'] span.value").html('0');
         calculate();
-      });
+      //});
 
-      // Focus input field
-      $( "a[href*=#]" ).click(function( event ) {
-        var page = $(this).attr('href');
-        //page = page.replace(/#/g , "");
-        setTimeout(function(){
-          $( "#testinput" ).focus().select();
-        }, 2000);
-      });
 
-      // Submit input values
-      $( "input.keysubmit" ).click(function( event ) {
-        var key = $(this).parent().parent().parent().parent().attr('id');
-        var value = $('#'+key+' input.key').val();
-        $("a[href='#"+key+"'] span.value").html(value);
-        $('a.ui-icon-delete').click();
-        calculate();
-      });
-
-      // Input mask (http://igorescobar.github.io/jQuery-Mask-Plugin/)
-      $('.money').mask('000,000,000', {reverse: true});
-      //$('.percent').mask('0Z.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}});
-      $('.term').mask('00', {reverse: true});
-      
       // Calculate Values
       function calculate() {
-        var estimatedPropertyValue = clean( $("a[href='#estimatedPropertyValue'] span.value").html() );
-        var purchasePrice = clean( $("a[href='#purchasePrice'] span.value").html() );
-        var downPaymentPercent = clean( $("a[href='#downPaymentPercent'] span.value").html() );
-        var closingCostsPercent = clean( $("a[href='#closingCostsPercent'] span.value").html() );
-        var downPayment = purchasePrice * downPaymentPercent / 100;
-        var equityAtPurchase = estimatedPropertyValue - purchasePrice + downPayment;
-        var loanAmount = purchasePrice - downPayment;
-        var closingCosts = loanAmount * closingCostsPercent / 100;
-        var cashAtClosing = downPayment + closingCosts;
-        var mortgageInterestRate = clean( $("a[href='#mortgageInterestRate'] span.value").html() );
-        var mortgageLoanTerm = clean( $("a[href='#mortgageLoanTerm'] span.value").html() );
-        var mortgagePayment = Math.round ( -1 * PMT( ( mortgageInterestRate / 100 / 12 ), mortgageLoanTerm * 12, loanAmount) );
-        var mortgagePaymentYearly = mortgagePayment * 12;
-        var rentalIncome = clean( $("a[href='#rentalIncome'] span.value").html() );
-        var propertyTaxes = clean( $("a[href='#propertyTaxes'] span.value").html() );
-        var propertyInsurance = clean( $("a[href='#propertyInsurance'] span.value").html() );
-        var homeownersAssociation = clean( $("a[href='#homeownersAssociation'] span.value").html() );
-        var propertyManagementPercent = clean( $("a[href='#propertyManagementPercent'] span.value").html() );
-        var maintenanceReservePercent = clean( $("a[href='#maintenanceReservePercent'] span.value").html() );        
-        var vacancyAllowancePercent = clean( $("a[href='#vacancyAllowancePercent'] span.value").html() );
-        var propertyManagement = Math.round( propertyManagementPercent / 100 * rentalIncome );
-        var maintenanceReserve = Math.round( maintenanceReservePercent / 100 * rentalIncome );
-        var vacancyAllowance = Math.round( vacancyAllowancePercent / 100 * rentalIncome );
-        var operatingExpenses = propertyTaxes + propertyInsurance + homeownersAssociation + propertyManagement + maintenanceReserve + vacancyAllowance;
-        var monthlyCashFlow = rentalIncome - operatingExpenses - mortgagePayment;
-        var appreciationRate = clean( $("a[href='#appreciationRate'] span.value").html() );        
-        var appreciationYear1 = Math.round( estimatedPropertyValue * appreciationRate / 100 );
-        var principleYear1 = Math.round( BalancePaid( mortgagePayment, ( mortgageInterestRate / 100 ), loanAmount, 12 ) );
-        var cashOnCashReturn = ( ( ( monthlyCashFlow * 12 ) + appreciationYear1 + principleYear1 ) / cashAtClosing ) * 100;
-        var capRate = ( ( ( rentalIncome - operatingExpenses ) * 12 ) / purchasePrice ) * 100;
-        var propertyValueYear5 = Compound( estimatedPropertyValue, ( appreciationRate / 100 ), 4 );
-        var equityInFiveYears = Math.round( propertyValueYear5 - ( loanAmount - BalancePaid( mortgagePayment, ( mortgageInterestRate / 100 ), loanAmount, 60 ) ) );
-
-        // Update Values
-        $("a[href='#downPayment'] span.value").html(downPayment.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#equityAtPurchase'] span.value").html(equityAtPurchase.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#loanAmount'] span.value").html(loanAmount.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#closingCosts'] span.value").html(closingCosts.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#cashAtClosing'] span.value").html(cashAtClosing.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#mortgagePayment'] span.value").html(mortgagePayment.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#mortgagePaymentYearly'] span.value").html(mortgagePaymentYearly.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#propertyManagement'] span.value").html(propertyManagement.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#maintenanceReserve'] span.value").html(maintenanceReserve.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#vacancyAllowance'] span.value").html(vacancyAllowance.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#monthlyCashFlow'] span.value").html(monthlyCashFlow.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(1));
-        $("a[href='#capRate'] span.value").html(capRate.toFixed(1));
-        $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears.toFixed(0)).mask('000,000,000', {reverse: true});
-
-        // Save Values
-        localStorage.estimatedPropertyValue = estimatedPropertyValue;
-
+        estimatedPropertyValue = clean( $("a[href='#estimatedPropertyValue'] span.value").html() );
+        purchasePrice = clean( $("a[href='#purchasePrice'] span.value").html() );
+        downPaymentPercent = clean( $("a[href='#downPaymentPercent'] span.value").html() );
+        closingCostsPercent = clean( $("a[href='#closingCostsPercent'] span.value").html() );
+        downPayment = purchasePrice * downPaymentPercent / 100;
+        equityAtPurchase = estimatedPropertyValue - purchasePrice + downPayment;
+        loanAmount = purchasePrice - downPayment;
+        closingCosts = loanAmount * closingCostsPercent / 100;
+        cashAtClosing = downPayment + closingCosts;
+        mortgageInterestRate = clean( $("a[href='#mortgageInterestRate'] span.value").html() );
+        mortgageLoanTerm = clean( $("a[href='#mortgageLoanTerm'] span.value").html() );
+        mortgagePayment = Math.round ( -1 * PMT( ( mortgageInterestRate / 100 / 12 ), mortgageLoanTerm * 12, loanAmount) );
+        mortgagePaymentYearly = mortgagePayment * 12;
+        rentalIncome = clean( $("a[href='#rentalIncome'] span.value").html() );
+        propertyTaxes = clean( $("a[href='#propertyTaxes'] span.value").html() );
+        propertyInsurance = clean( $("a[href='#propertyInsurance'] span.value").html() );
+        homeownersAssociation = clean( $("a[href='#homeownersAssociation'] span.value").html() );
+        propertyManagementPercent = clean( $("a[href='#propertyManagementPercent'] span.value").html() );
+        maintenanceReservePercent = clean( $("a[href='#maintenanceReservePercent'] span.value").html() );        
+        vacancyAllowancePercent = clean( $("a[href='#vacancyAllowancePercent'] span.value").html() );
+        propertyManagement = Math.round( propertyManagementPercent / 100 * rentalIncome );
+        maintenanceReserve = Math.round( maintenanceReservePercent / 100 * rentalIncome );
+        vacancyAllowance = Math.round( vacancyAllowancePercent / 100 * rentalIncome );
+        operatingExpenses = propertyTaxes + propertyInsurance + homeownersAssociation + propertyManagement + maintenanceReserve + vacancyAllowance;
+        monthlyCashFlow = rentalIncome - operatingExpenses - mortgagePayment;
+        appreciationRate = clean( $("a[href='#appreciationRate'] span.value").html() );        
+        appreciationYear1 = Math.round( estimatedPropertyValue * appreciationRate / 100 );
+        principleYear1 = Math.round( BalancePaid( mortgagePayment, ( mortgageInterestRate / 100 ), loanAmount, 12 ) );
+        cashOnCashReturn = ( ( ( monthlyCashFlow * 12 ) + appreciationYear1 + principleYear1 ) / cashAtClosing ) * 100;
+        capRate = ( ( ( rentalIncome - operatingExpenses ) * 12 ) / purchasePrice ) * 100;
+        propertyValueYear5 = Compound( estimatedPropertyValue, ( appreciationRate / 100 ), 4 );
+        equityInFiveYears = Math.round( propertyValueYear5 - ( loanAmount - BalancePaid( mortgagePayment, ( mortgageInterestRate / 100 ), loanAmount, 60 ) ) );
+        // Update view
+        getPageData();
+        update();
       }
-      
+
+      // Update Values
+      function update() {
+        $("a[href='#downPayment'] span.value").html(downPayment.toFixed(0));
+        $("a[href='#equityAtPurchase'] span.value").html(equityAtPurchase.toFixed(0));
+        $("a[href='#loanAmount'] span.value").html(loanAmount.toFixed(0));
+        $("a[href='#closingCosts'] span.value").html(closingCosts.toFixed(0));
+        $("a[href='#cashAtClosing'] span.value").html(cashAtClosing.toFixed(0));
+        $("a[href='#mortgagePayment'] span.value").html(mortgagePayment.toFixed(0));
+        $("a[href='#mortgagePaymentYearly'] span.value").html(mortgagePaymentYearly.toFixed(0));
+        $("a[href='#propertyManagement'] span.value").html(propertyManagement.toFixed(0));
+        $("a[href='#maintenanceReserve'] span.value").html(maintenanceReserve.toFixed(0));
+        $("a[href='#vacancyAllowance'] span.value").html(vacancyAllowance.toFixed(0));
+        $("a[href='#monthlyCashFlow'] span.value").html(monthlyCashFlow.toFixed(0));
+        $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(2));
+        $("a[href='#capRate'] span.value").html(capRate.toFixed(2));
+        $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears.toFixed(0));
+      }
+
       // Clean number
       function clean( str ) {
-        str = str.replace(/,/g , "");
-        str = str.replace(/%/g , "");
+        str = str.replace("," , "");
+        str = str.replace("%" , "");
         str = Number(str);
         return str;
       }
@@ -150,85 +209,286 @@
       function Compound(Orig, rate, yrs) {   
         return Orig * Math.pow((1.00 + rate), yrs);
       }
-      
+
+      // Page data
+      function getPageData() {
+        page = {
+          estimatedPropertyValue : {
+            id : "estimatedPropertyValue",
+            title : "Estimated Property Value",
+            type : "input",
+            mask : "currency",
+            back : "main",
+            value: estimatedPropertyValue,
+            content : "<p>The estimated property value can be determined from comparable property sales, Multiple Listing Service (MLS) data, appraisal reports, public records, etc. This figure is used as a baseline amount to estimate equity yet is not used to estimate cash flow.</p>"
+          },
+          purchasePrice : {
+            id : "purchasePrice",
+            title : "Purchase Price",
+            type : "input",
+            mask : "currency",
+            back : "main",
+            value: purchasePrice,
+            content : "<p>The purchase price is the listed price, seller's price, or the anticipated cost of purchasing the property.</p>"
+          },
+          downPayment : {
+            id : "downPayment",
+            title : "Down Payment",
+            type : "info",
+            back : "main",
+            content : "<p>The down payment is a type of payment made in cash during the onset of the purchase of a property. The payment typically represents only a percentage of the full purchase price; in some cases it is not refundable if the deal falls through. Financing arrangements are made by the purchaser to cover the remaining amount owed to the seller.</p><p>Down Payment = Purchase Price x Down Payment Percent ("+downPaymentPercent+"%)</p>"
+          },
+          equityAtPurchase : {
+            id : "equityAtPurchase",
+            title : "Equity at Purchase",
+            type : "info",
+            back : "main",
+            content : "<p>Real estate equity is the difference between the current market value of the property and the amount the owner still owes on the mortgage. It is the amount that the owner would receive after selling a property and paying off the mortgage.</p><p><em>Equity At Purchase = Estimated Property Value - Purchase Price + Down Payment</em></p>"
+          },
+          loanAmount : {
+            id : "loanAmount",
+            title : "Loan Amount",
+            type : "info",
+            back : "main",
+            content : "<p>The loan amount is the actual amount of money the lender is willing to allow you to borrow. Typically, lenders derive the loan amount based on their Loan to Value (LTV) ratio - which is the percentage of the property's value that is mortgaged. If you divide the mortgage amount by the lesser of either the appraised value or the selling price, you get the LTV.</p>"
+          },
+          closingCosts : {
+            id : "closingCosts",
+            title : "Closing Costs",
+            type : "info",
+            back : "main",
+            content : "<p>Closing costs are the expenses, over and above the price of the property that buyers and sellers normally incur to complete a real estate transaction. Costs incurred include loan origination fees, discount points, appraisal fees, title searches, title insurance, surveys, taxes, deed-recording fees and credit report charges.</p>"
+          },
+          cashAtClosing : {
+            id : "cashAtClosing",
+            title : "Cash At Closing",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+          mortgagePayment : {
+            id : "mortgagePayment",
+            title : "Mortgage Payment",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+          mortgagePaymentYearly : {
+            id : "mortgagePaymentYearly",
+            title : "Mortgage Payment Yearly",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+          rentalIncome : {
+            id : "rentalIncome",
+            title : "Rental Income",
+            type : "input",
+            mask : "currency",
+            back : "main",
+            value: rentalIncome,
+            content : "<p></p>"
+          },
+          propertyTaxes : {
+            id : "propertyTaxes",
+            title : "Property Taxes",
+            type : "input",
+            mask : "currency",
+            back : "main",
+            value : propertyTaxes,
+            content : "<p></p>"
+          },
+          propertyInsurance : {
+            id : "propertyInsurance",
+            title : "Property Insurance",
+            type : "input",
+            mask : "currency",
+            back : "main",
+            value : propertyInsurance,
+            content : "<p></p>"
+          },
+          homeownersAssociation : {
+            id : "homeownersAssociation",
+            title : "Homeowners Association",
+            type : "input",
+            mask : "currency",
+            back : "main",
+            value : homeownersAssociation,
+            content : "<p></p>"
+          },
+          propertyManagement : {
+            id : "propertyManagement",
+            title : "Property Management",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+          maintenanceReserve : {
+            id : "maintenanceReserve",
+            title : "Maintenance Reserve",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+          vacancyAllowance : {
+            id : "vacancyAllowance",
+            title : "Vacancy Allowance",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+          downPaymentPercent : {
+            id : "downPaymentPercent",
+            title : "Down Payment Percent",
+            type : "input",
+            mask : "percent",
+            back : "settings",
+            value : downPaymentPercent,
+            content : "<p></p>"
+          },
+          mortgageInterestRate : {
+            id : "mortgageInterestRate",
+            title : "Mortgage Interest Rate",
+            type : "input",
+            mask : "percent",
+            back : "settings",
+            value : mortgageInterestRate,
+            content : "<p></p>"
+          },
+          mortgageLoanTerm : {
+            id : "mortgageLoanTerm",
+            title : "Mortgage Loan Term",
+            type : "input",
+            mask : "years",
+            back : "settings",
+            value : mortgageLoanTerm,
+            content : "<p></p>"
+          },
+          closingCostsPercent : {
+            id : "closingCostsPercent",
+            title : "Closing Costs Percent",
+            type : "input",
+            mask : "percent",
+            back : "settings",
+            value : closingCostsPercent,
+            content : "<p></p>"
+          },
+          propertyManagementPercent : {
+            id : "propertyManagementPercent",
+            title : "Property Management Percent",
+            type : "input",
+            mask : "percent",
+            back : "settings",
+            value : propertyManagementPercent,
+            content : "<p></p>"
+          },
+          maintenanceReservePercent : {
+            id : "maintenanceReservePercent",
+            title : "Maintenance Reserve Percent",
+            type : "input",
+            mask : "percent",
+            back : "settings",
+            value : maintenanceReservePercent,
+            content : "<p></p>"
+          },
+          vacancyAllowancePercent : {
+            id : "vacancyAllowancePercent",
+            title : "Vacancy Allowance Percent",
+            type : "input",
+            mask : "percent",
+            back : "settings",
+            value : vacancyAllowancePercent,
+            content : "<p></p>"
+          },
+          appreciationRate : {
+            id : "appreciationRate",
+            title : "Appreciation Rate",
+            type : "input",
+            mask : "percent",
+            back : "settings",
+            value : appreciationRate,
+            content : "<p></p>"
+          },
+          monthlyCashFlow : {
+            id : "monthlyCashFlow",
+            title : "Monthly Cash Flow",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+          capRate : {
+            id : "capRate",
+            title : "Cap Rate",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+          cashOnCashReturn : {
+            id : "cashOnCashReturn",
+            title : "Cash On Cash Return",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+          equityInFiveYears : {
+            id : "equityInFiveYears",
+            title : "Equity In Five Years",
+            type : "info",
+            back : "main",
+            content : "<p></p>"
+          },
+        }
+      }
+
     });
   </script>
 </head>
 
-<body style="margin-top: 20px;">
+<body>
 
 <!---------------------------------------
 MAIN
 ---------------------------------------->
-<div data-role="page" id="main">
+<div data-role="page" id="main" class="page">
 
-	<div data-role="header" data-theme="a" data-position="fixed">
-    <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-logo ui-btn-icon-left ui-btn-icon-notext" style="background-color: #2ad;">Calculator</a>
+	<div data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">
+    <a href="#" class="ui-btn ui-corner-all ui-icon-calculator ui-btn-icon-left ui-btn-icon-notext" style="background-color: #2ad;">Calculator</a>
 		<h1>Property Calculator</h1>
+    <a href="#settings" class="ui-btn ui-corner-all ui-icon-gear ui-btn-icon-right ui-btn-icon-notext" data-transition="slideup">Settings</a>
 	</div><!-- /header -->
 
-	<div role="main" class="ui-content collapsible">
+	<div role="main">
 
-    <div data-role="collapsible" data-theme="b" data-content-theme="a">
-      <h2>Basic Purchase Information</h2>
-      <ul data-role="listview">
-        <li><a href="#estimatedPropertyValue" data-rel="dialog">Est. Property Value<span class="value money">0</span></a></li>
-        <li><a href="#purchasePrice" data-rel="dialog">Purchase Price<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#downPayment" data-rel="dialog">Down Payment<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#equityAtPurchase" data-rel="dialog">Equity at Purchase<span class="value money">0</span></a></li>
-      </ul>
-    </div>
-        
-    <div data-role="collapsible" data-theme="b" data-content-theme="a">
-      <h2>Mortgage Calculations</h2>
-      <ul data-role="listview">
-        <li data-icon="info"><a href="#loanAmount" data-rel="dialog">Loan Amount<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#downPayment" data-rel="dialog">Down Payment<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#closingCosts" data-rel="dialog">Closing Costs<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#cashAtClosing" data-rel="dialog">Cash at Closing<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#mortgagePaymentYearly" data-rel="dialog">Mortgage Payment Yearly<span class="value money">0</span></a></li>
-      </ul>
-    </div>
+    <ul data-role="listview" data-inset="false">
+      <li data-role="list-divider" data-theme="b">Basic Purchase Information</li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#estimatedPropertyValue" data-transition="slidefade">Est. Property Value<span class="value money">0</span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#purchasePrice" data-transition="slidefade">Purchase Price<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#equityAtPurchase" data-rel="dialog">Equity at Purchase<span class="value money">0</span></a></li>
+    </ul>
 
-    <div data-role="collapsible" data-theme="b" data-content-theme="a">
-      <h2>Property Calculations</h2>
-      <ul data-role="listview">
-        <li><a href="#rentalIncome" data-rel="dialog">Rental Income<span class="value money">0</span></a></li>
-        <li><a href="#propertyTaxes" data-rel="dialog">Property Taxes<span class="value money">0</span></a></li>
-        <li><a href="#propertyInsurance" data-rel="dialog">Property Insurance<span class="value money">0</span></a></li>
-        <li><a href="#homeownersAssociation" data-rel="dialog">Homeowners Association<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#propertyManagement" data-rel="dialog">Property Management<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#maintenanceReserve" data-rel="dialog">Maintenance Reserve<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#vacancyAllowance" data-rel="dialog">Vacancy Allowance<span class="value money">0</span></a></li>
-        <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money">0</span></a></li>
-      </ul>
-    </div>
+    <ul data-role="listview" data-inset="false">
+      <li data-role="list-divider" data-theme="b">Mortgage Calculations</li>
+      <li data-icon="info"><a href="#loanAmount" data-rel="dialog">Loan Amount<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#downPayment" data-rel="dialog">Down Payment<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#closingCosts" data-rel="dialog">Closing Costs<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#cashAtClosing" data-rel="dialog">Cash at Closing<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#mortgagePaymentYearly" data-rel="dialog">Mortgage Payment Yearly<span class="value money">0</span></a></li>
+    </ul>
     
-    <div data-role="collapsible" data-theme="b" data-content-theme="a">
-      <h2>Assumptions for Calculations</h2>
-      <ul data-role="listview">
-        <li data-role="list-divider" data-theme="b">Mortgage Assumptions</li>
-        <li><a href="#downPaymentPercent" data-rel="dialog">Down Payment Percent<span class="value percent">0</span></a></li>
-        <li><a href="#mortgageInterestRate" data-rel="dialog">Mortgage Interest Rate<span class="value percent">0</span></a></li>
-        <li><a href="#mortgageLoanTerm" data-rel="dialog">Mortgage Loan Term<span class="value term">0</span></a></li>
-        <li><a href="#closingCostsPercent" data-rel="dialog">Closing Costs Percent<span class="value percent">0</span></a></li>
-        <li data-role="list-divider" data-theme="b">Property Assumptions</li>
-        <li><a href="#propertyManagementPercent" data-rel="dialog">Property Management<span class="value percent">0</span></a></li>
-        <li><a href="#maintenanceReservePercent" data-rel="dialog">Maintenance Reserve<span class="value percent">0</span></a></li>
-        <li><a href="#vacancyAllowancePercent" data-rel="dialog">Vacancy Allowance<span class="value percent">0</span></a></li>
-        <li><a href="#appreciationRate" data-rel="dialog">Appreciation Rate<span class="value percent">0</span></a></li>
-        <li><a href="#rentalIncrease" data-rel="dialog">Rental Increase<span class="value percent">0</span></a></li>
-        <li><a href="#propertyTaxIncrease" data-rel="dialog">Property Tax Increase<span class="value percent">0</span></a></li>
-      </ul>
-    </div>    
+    <ul data-role="listview" data-inset="false">
+      <li data-role="list-divider" data-theme="b" data-transition="none">Property Calculations</li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#rentalIncome" data-transition="slidefade">Rental Income<span class="value money">0</span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#propertyTaxes" data-transition="slidefade">Property Taxes<span class="value money">0</span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#propertyInsurance" data-transition="slidefade">Property Insurance<span class="value money">0</span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#homeownersAssociation" data-transition="slidefade">Homeowners Association<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#propertyManagement" data-rel="dialog">Property Management<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#maintenanceReserve" data-rel="dialog">Maintenance Reserve<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#vacancyAllowance" data-rel="dialog">Vacancy Allowance<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money">0</span></a></li>
+    </ul>
 
-
-    
-	</div><!-- /content -->
-
-	<div id="footer" data-role="footer" data-theme="b" data-position="fixed">
-    <div id="summary" data-role="" data-theme="a" data-content-theme="a">
+    <div data-role="footer" data-position="fixed" data-theme="b" data-tap-toggle="false">
       <ul data-role="listview">
         <li data-icon="info"><a href="#monthlyCashFlow" data-rel="dialog">Monthly Cash Flow<span class="value money">0</span></a></li>        
         <li data-icon="info"><a href="#capRate" data-rel="dialog">Cap Rate<span class="value percent">0</span></a></li>
@@ -236,414 +496,40 @@ MAIN
         <li data-icon="info"><a href="#equityInFiveYears" data-rel="dialog">Equity in Five Years<span class="value money">0</span></a></li>
       </ul>
     </div>
-    <div data-role="controlgroup" data-type="horizontal">
-      <a href="#" class="ui-btn ui-icon-calculator ui-btn-icon-left">Calculator</a>
-      <a href="#" class="ui-btn ui-icon-bars ui-btn-icon-left">Properties</a>
-      <a id="save" href="#" class="ui-btn ui-icon-plus ui-btn-icon-left">Save</a>
-    </div>
-	</div><!-- /footer -->
+    
+	</div><!-- /content -->
 
 </div><!-- /main -->
 
-<!---------------------------------------
-ESTIMATED PROPERTY VALUE
----------------------------------------->
-<div data-role="page" id="estimatedPropertyValue" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Estimated Property Value</label>
-    <input id="testinput" class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
-    <p>The estimated property value can be determined from comparable property sales, Multiple Listing Service (MLS) data, appraisal reports, public records, etc. This figure is used as a baseline amount to estimate equity yet is not used to estimate cash flow.</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
 
 <!---------------------------------------
-PURCHASE PRICE
+SETTINGS
 ---------------------------------------->
-<div data-role="page" id="purchasePrice" data-theme="a">
+<div data-role="page" id="settings" class="page">
 
-	<div data-role="header">
-		<h1>Input</h1>
+	<div data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">
+		<h1>Settings</h1>
+    <a class="ui-btn ui-btn-right ui-icon-carat-d ui-btn-icon-notext ui-corner-all" href="#main" data-transition="slideup" data-direction="reverse">Back</a>
 	</div><!-- /header -->
 
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Purchase Price</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
-    <p>The purchase price is the listed price, seller's price, or the anticipated cost of purchasing the property.</p>
-
+	<div role="main">
+    
+    <ul data-role="listview" data-inset="false" class="ui-nodisc-icon ui-alt-icon">
+      <li data-role="list-divider" data-theme="b">Mortgage Assumptions</li>
+      <li><a href="#downPaymentPercent" data-transition="slidefade">Down Payment Percent<span class="value percent">0</span></a></li>
+      <li><a href="#mortgageInterestRate" data-transition="slidefade">Mortgage Interest Rate<span class="value percent">0</span></a></li>
+      <li><a href="#mortgageLoanTerm" data-transition="slidefade">Mortgage Loan Term<span class="value term">0</span></a></li>
+      <li><a href="#closingCostsPercent" data-transition="slidefade">Closing Costs Percent<span class="value percent">0</span></a></li>
+      <li data-role="list-divider" data-theme="b">Property Assumptions</li>
+      <li><a href="#propertyManagementPercent" data-transition="slidefade">Property Management<span class="value percent">0</span></a></li>
+      <li><a href="#maintenanceReservePercent" data-transition="slidefade">Maintenance Reserve<span class="value percent">0</span></a></li>
+      <li><a href="#vacancyAllowancePercent" data-transition="slidefade">Vacancy Allowance<span class="value percent">0</span></a></li>
+      <li><a href="#appreciationRate" data-transition="slidefade">Appreciation Rate<span class="value percent">0</span></a></li>
+    </ul>
+    
 	</div><!-- /content -->
 
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-DOWN PAYMENT
----------------------------------------->
-<div data-role="page" id="downPayment" data-theme="a">
-
-	<div data-role="header">
-		<h1>Calculation</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Down Payment</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$" disabled="disabled">
-    <p>For lender-financed properties, the down payment is the initial upfront portion of the total amount due and it is usually given in cash at the time of closing. A 20% down payment is typical for investment properties.</p>
-    <p>Click the button below to enter a down payment percentage:</p>    
-    <a href="#downPaymentPercent" data-rel="dialog" class="ui-btn ui-icon-gear ui-btn-icon-left">Down Payment Percent</a>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-EQUITY AT PURCHASE
----------------------------------------->
-<div data-role="page" id="equityAtPurchase" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Equity At Purchase</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$" disabled="disabled">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-DOWN PAYMENT PERCENT
----------------------------------------->
-<div data-role="page" id="downPaymentPercent" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Down Payment Percentage</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-MORTGAGE INTEREST RATE
----------------------------------------->
-<div data-role="page" id="mortgageInterestRate" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Mortgage Interest Rate</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-MORTGAGE LOAN TERM
----------------------------------------->
-<div data-role="page" id="mortgageLoanTerm" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Mortgage Loan Term</label>
-    <input class="key term" name="number" id="number-pattern" value="30" type="tel" placeholder="Loan Term in Years">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-CLOSING COSTS PERCENT
----------------------------------------->
-<div data-role="page" id="closingCostsPercent" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Closing Costs Percentage</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-RENTAL INCOME
----------------------------------------->
-<div data-role="page" id="rentalIncome" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Rental Income</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-PROPERTY TAXES
----------------------------------------->
-<div data-role="page" id="propertyTaxes" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Property Taxes</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-PROPERTY INSURANCE
----------------------------------------->
-<div data-role="page" id="propertyInsurance" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Property Insurance</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-HOMEOWNERS ASSOCIATION
----------------------------------------->
-<div data-role="page" id="homeownersAssociation" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Homeowners Association</label>
-    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-PROPERTY MANAGEMENT
----------------------------------------->
-<div data-role="page" id="propertyManagementPercent" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Property Management</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="tel" placeholder="%">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-MAINTENANCE RESERVE
----------------------------------------->
-<div data-role="page" id="maintenanceReservePercent" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Maintenance Reserve</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="tel" placeholder="%">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-VACANCY ALLOWANCE
----------------------------------------->
-<div data-role="page" id="vacancyAllowancePercent" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Vacancy Allowance</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="tel" placeholder="%">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-APPRECIATION RATE
----------------------------------------->
-<div data-role="page" id="appreciationRate" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Appreciation Rate</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-RENTAL INCREASE
----------------------------------------->
-<div data-role="page" id="rentalIncrease" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Rental Increase</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-<!---------------------------------------
-PROPERTY TAX INCREASE
----------------------------------------->
-<div data-role="page" id="propertyTaxIncrease" data-theme="a">
-
-	<div data-role="header">
-		<h1>Input</h1>
-	</div><!-- /header -->
-
-	<div role="main" class="ui-content">
-    <label for="number-pattern">Property Tax Increase</label>
-    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
-    <p>Description goes here...</p>
-
-	</div><!-- /content -->
-
-	<div data-role="footer" data-theme="a" role="fixed">
-    <input class="keysubmit" data-theme="b" value="OK" type="submit">
-	</div><!-- /footer -->
-
-</div><!-- /page -->
-
-
+</div><!-- /settings -->
 
 </body>
 </html>

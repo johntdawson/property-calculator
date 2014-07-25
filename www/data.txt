@@ -1,0 +1,386 @@
+<!---------------------------------------
+ESTIMATED PROPERTY VALUE
+---------------------------------------->
+<div data-role="page" id="estimatedPropertyValue" data-theme="a">
+
+	<div data-role="header">
+		<h1>Estimated Property Value</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <input id="testinput" class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
+    <p>The estimated property value can be determined from comparable property sales, Multiple Listing Service (MLS) data, appraisal reports, public records, etc. This figure is used as a baseline amount to estimate equity yet is not used to estimate cash flow.</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+PURCHASE PRICE
+---------------------------------------->
+<div data-role="page" id="purchasePrice" data-theme="a">
+
+	<div data-role="header">
+		<h1>Purchase Price</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
+    <p>The purchase price is the listed price, seller's price, or the anticipated cost of purchasing the property.</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+DOWN PAYMENT
+---------------------------------------->
+<div data-role="page" id="downPayment" data-theme="a">
+
+	<div data-role="header">
+		<h1>Down Payment</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <p>For lender-financed properties, the down payment is the initial upfront portion of the total amount due and it is usually given in cash at the time of closing. A 20% down payment is typical for investment properties.</p>
+    <p>Click the button below to enter a down payment percentage:</p>    
+    <a href="#downPaymentPercent" data-rel="dialog" class="ui-btn ui-icon-gear ui-btn-icon-left">Down Payment Percent</a>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+EQUITY AT PURCHASE
+---------------------------------------->
+<div data-role="page" id="equityAtPurchase" data-theme="a">
+
+	<div data-role="header">
+		<h1>Equity At Purchase</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$" disabled="disabled">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+DOWN PAYMENT PERCENT
+---------------------------------------->
+<div data-role="page" id="downPaymentPercent" data-theme="a">
+
+	<div data-role="header">
+		<h1>Down Payment Percentage</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+MORTGAGE INTEREST RATE
+---------------------------------------->
+<div data-role="page" id="mortgageInterestRate" data-theme="a">
+
+	<div data-role="header">
+		<h1>Mortgage Interest Rate</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+MORTGAGE LOAN TERM
+---------------------------------------->
+<div data-role="page" id="mortgageLoanTerm" data-theme="a">
+
+	<div data-role="header">
+		<h1>Mortgage Loan Term</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <input class="key term" name="number" id="number-pattern" value="30" type="tel" placeholder="Loan Term in Years">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+CLOSING COSTS PERCENT
+---------------------------------------->
+<div data-role="page" id="closingCostsPercent" data-theme="a">
+
+	<div data-role="header">
+		<h1>Closing Costs Percentage</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+RENTAL INCOME
+---------------------------------------->
+<div data-role="page" id="rentalIncome" data-theme="a">
+
+	<div data-role="header">
+		<h1>Rental Income</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+PROPERTY TAXES
+---------------------------------------->
+<div data-role="page" id="propertyTaxes" data-theme="a">
+
+	<div data-role="header">
+		<h1>Property Taxes</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <label for="number-pattern">Property Taxes</label>
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+PROPERTY INSURANCE
+---------------------------------------->
+<div data-role="page" id="propertyInsurance" data-theme="a">
+
+	<div data-role="header">
+		<h1>Property Insurance</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+HOMEOWNERS ASSOCIATION
+---------------------------------------->
+<div data-role="page" id="homeownersAssociation" data-theme="a">
+
+	<div data-role="header">
+		<h1>Homeowners Association</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <label for="number-pattern">Homeowners Association</label>
+    <input class="key money" name="number" id="number-pattern" value="" type="tel" placeholder="$">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+PROPERTY MANAGEMENT
+---------------------------------------->
+<div data-role="page" id="propertyManagementPercent" data-theme="a">
+
+	<div data-role="header">
+		<h1>Input</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <label for="number-pattern">Property Management</label>
+    <input class="key percent" name="number" id="number-pattern" value="" type="tel" placeholder="%">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+MAINTENANCE RESERVE
+---------------------------------------->
+<div data-role="page" id="maintenanceReservePercent" data-theme="a">
+
+	<div data-role="header">
+		<h1>Input</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <label for="number-pattern">Maintenance Reserve</label>
+    <input class="key percent" name="number" id="number-pattern" value="" type="tel" placeholder="%">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+VACANCY ALLOWANCE
+---------------------------------------->
+<div data-role="page" id="vacancyAllowancePercent" data-theme="a">
+
+	<div data-role="header">
+		<h1>Input</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <label for="number-pattern">Vacancy Allowance</label>
+    <input class="key percent" name="number" id="number-pattern" value="" type="tel" placeholder="%">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+APPRECIATION RATE
+---------------------------------------->
+<div data-role="page" id="appreciationRate" data-theme="a">
+
+	<div data-role="header">
+		<h1>Input</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <label for="number-pattern">Appreciation Rate</label>
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+RENTAL INCREASE
+---------------------------------------->
+<div data-role="page" id="rentalIncrease" data-theme="a">
+
+	<div data-role="header">
+		<h1>Input</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <label for="number-pattern">Rental Increase</label>
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<!---------------------------------------
+PROPERTY TAX INCREASE
+---------------------------------------->
+<div data-role="page" id="propertyTaxIncrease" data-theme="a">
+
+	<div data-role="header">
+		<h1>Input</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+    <label for="number-pattern">Property Tax Increase</label>
+    <input class="key percent" name="number" id="number-pattern" value="" type="number" step="0.01">
+    <p>Description goes here...</p>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-theme="a" role="fixed">
+    <input class="keysubmit" data-theme="b" value="OK" type="submit">
+	</div><!-- /footer -->
+
+</div><!-- /page -->
