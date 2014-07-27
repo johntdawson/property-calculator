@@ -107,12 +107,16 @@
         calculate();
       });
 
-      // Auto-fill sample data
-      $.each(page, function(index, page) {
-        if ( page.sample != null ) {
-          $("a[href='#"+page.id+"'] span.value").html(page.sample);
-        }
+      // Auto-fill default data
+      $( document ).delegate("#main", "pageinit", function() {
+        $.each(page, function(index, page) {
+          if ( page.default != null ) {
+            $("a[href='#"+page.id+"'] span.value").html(page.default);
+          }
+        });
+        calculate();
       });
+
       calculate();
       
 
@@ -168,9 +172,11 @@
         $("a[href='#maintenanceReserve'] span.value").html(maintenanceReserve.toFixed(0)).mask('000,000,000', {reverse: true});
         $("a[href='#vacancyAllowance'] span.value").html(vacancyAllowance.toFixed(0)).mask('000,000,000', {reverse: true});
         $("a[href='#monthlyCashFlow'] span.value").html(monthlyCashFlow.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(2));
         $("a[href='#capRate'] span.value").html(capRate.toFixed(2));
+        $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(2));
         $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears.toFixed(0)).mask('000,000,000', {reverse: true});
+        if ( isFinite(capRate)===false ) { $("a[href='#capRate'] span.value").html('0.00') };
+        if ( isFinite(cashOnCashReturn)===false ) { $("a[href='#cashOnCashReturn'] span.value").html('0.00') };
       }
 
       // Clean number
@@ -206,7 +212,7 @@
             mask : "currency",
             back : "main",
             value: estimatedPropertyValue,
-            sample : "100,000",
+            default : "0",
             content : "<p>The estimated property value can be determined from comparable property sales, Multiple Listing Service (MLS) data, appraisal reports, public records, etc. This figure is used as a baseline amount to estimate equity yet is not used to estimate cash flow.</p>"
           },
           purchasePrice : {
@@ -216,7 +222,7 @@
             mask : "currency",
             back : "main",
             value: purchasePrice,
-            sample : "100,000",
+            default : "0",
             content : "<p>The purchase price is the listed price, seller's price, or the anticipated cost of purchasing the property.</p>"
           },
           downPayment : {
@@ -275,7 +281,7 @@
             mask : "currency",
             back : "main",
             value: rentalIncome,
-            sample : "1,000",
+            default : "0",
             content : "<p>Rental Income is the estimated amount of total monthly rent for a given property. For duplex, triplex, etc. or properties with more than one tenant, enter a total amount of monthly rental income for all tenants.</p>"
           },
           propertyTaxes : {
@@ -285,7 +291,7 @@
             mask : "currency",
             back : "main",
             value : propertyTaxes,
-            sample : "200",
+            default : "0",
             content : "<p>Property Taxes are taxes assessed on real estate by the local government. The tax is usually based on the value of the property (including the land) you own. Enter the estimated monthly amount of property taxes for this property.</p>"
           },
           homeownersInsurance : {
@@ -295,7 +301,7 @@
             mask : "currency",
             back : "main",
             value : homeownersInsurance,
-            sample : "50",
+            default : "0",
             content : "<p>Homeowners Insurance is a form of property insurance designed to protect an individual's home against damages to the house itself, or to possessions in the home. Homeowners insurance also provides liability coverage against accidents in the home or on the property. Enter the estimated monthly amount of homeowners insurance for this property.</p>"
           },
           homeownersAssociation : {
@@ -305,7 +311,7 @@
             mask : "currency",
             back : "main",
             value : homeownersAssociation,
-            sample : "0",
+            default : "0",
             content : "<p>The Homeowners Association (HOA) fee is an amount of money that must be paid monthly by owners of certain types of residential property to an organization that assists with maintaining and improving that property and others in the same group. HOA fees are almost always levied on condominium owners, but they may also apply in some single family neighborhoods. If applicable for this property, enter a monthly amount of HOA dues.</p>"
           },
           propertyManagement : {
@@ -336,7 +342,7 @@
             mask : "percent",
             back : "settings",
             value : downPaymentPercent,
-            sample : "20",
+            default : "20",
             content : "<p>Down Payment Percent is a percentage of the full purchase price, used to calculate the amount of Down Payment. Because houses are extremely expensive, home buyers typically pay down payments that equal 5-25% of the total value of the home. For investment properties, the down payment percent is typically 20% minimum.</p>"
           },
           mortgageInterestRate : {
@@ -346,7 +352,7 @@
             mask : "percent",
             back : "settings",
             value : mortgageInterestRate,
-            sample : "5.0",
+            default : "5.0",
             content : "<p>The Mortgage Interest Rate is the amount charged, expressed as a percentage of principal, by a lender to a borrower for the use of assets. Interest rates are typically noted on an annual basis, known as the annual percentage rate (APR). Interest is essentially a rental, or leasing charge to the borrower, for the asset's use.</p>"
           },
           mortgageLoanTerm : {
@@ -356,7 +362,7 @@
             mask : "years",
             back : "settings",
             value : mortgageLoanTerm,
-            sample : "30",
+            default : "30",
             content : "<p>The Mortgage Loan Term is the period of time assigned as the lifespan of the loan, expressed in number of years (e.g., 30 years, 15 years, etc.). The Term is the time it takes for all payments to be made by the borrower and received by the lender.</p>"
           },
           closingCostsPercent : {
@@ -366,7 +372,7 @@
             mask : "percent",
             back : "settings",
             value : closingCostsPercent,
-            sample : "5.0",
+            default : "5.0",
             content : "<p>The Closing Cost Percent is a percentage amount of the loan amount, typically around 5% (could be higher or lower depending on the lender), which is used as a way to quickly estimate the total amount of closing costs, such as loan origination fees, discount points, appraisal fees, title searches, title insurance, surveys, taxes, deed-recording fees and credit report charges.</p>"
           },
           propertyManagementPercent : {
@@ -376,7 +382,7 @@
             mask : "percent",
             back : "settings",
             value : propertyManagementPercent,
-            sample : "10.0",
+            default : "10.0",
             content : "<p>A Property Management Percent is a percentage of the monthly rent, typically around 10% (could be higher or lower depending on the Property Management company), which is deducted out of the rental income amount on a monthly basis. Property Management companies are paid this fee in exchange for the administration of the property, tenant placement, etc. on behalf of the owner.</p>"
           },
           maintenanceReservePercent : {
@@ -386,7 +392,7 @@
             mask : "percent",
             back : "settings",
             value : maintenanceReservePercent,
-            sample : "5.0",
+            default : "5.0",
             content : "<p>The Maintenance Reserve Percent is a percentage of the monthly rent, used to calculate the amount of monthly maintenance reserves to set aside for maintenance costs, in order to keep the property in good condition for the tenant.</p>"
           },
           vacancyAllowancePercent : {
@@ -396,7 +402,7 @@
             mask : "percent",
             back : "settings",
             value : vacancyAllowancePercent,
-            sample : "7.0",
+            default : "7.0",
             content : "<p>The Vacancy Allowance Percent is a percentage of the monthly rent, used to calculate the amount of monthly vacancy allowance to set aside for vacancy costs, in order to account for the loss in rental income during vacancies.</p>"
           },
           appreciationRate : {
@@ -406,7 +412,7 @@
             mask : "percent",
             back : "settings",
             value : appreciationRate,
-            sample : "3.0",
+            default : "3.0",
             content : "<p>The Appreciation Rate is the percent increase in the value of a property over time. The increase can occur for a number of reasons including increased demand or weakening supply, changes in inflation or interest rates, or other market conditions which may cause the value of the property to rise. This is the opposite of depreciation, which is a decrease over time.</p>"
           },
           monthlyCashFlow : {
