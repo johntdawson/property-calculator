@@ -25,8 +25,27 @@
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.mobile-1.4.3.min.js"></script>
 	<script src="js/jquery.mask.js"></script>
+	<script src="js/jquery.maskMoney.min.js"></script>
   <script>
     $(document).on( "pagecreate", function() {
+
+      // Sample data
+      data = {
+        estimatedPropertyValue : "100,000",
+        purchasePrice : "1,000,000",
+        rentalIncome : "1,030",
+        propertyTaxes : "150",
+        homeownersInsurance : "50",
+        homeownersAssociation : "0",
+        downPaymentPercent : "20",
+        mortgageInterestRate : "5.5",
+        mortgageLoanTerm : "30",
+        closingCostsPercent : "5",
+        propertyManagementPercent : "10",
+        maintenanceReservePercent : "5",
+        vacancyAllowancePercent : "7",
+        appreciationRate : "3"
+      }
 
       // Remember scroll position
       $( document ).delegate("#main", "pagebeforeshow", function() {
@@ -42,7 +61,7 @@
       var scrollPosition = null;
 
       // Calculate
-      calculate();
+      //calculate();
       
       // Create page for each list item
       $('body').on( "click", '.page li a', function(e) {
@@ -63,17 +82,17 @@
             '   <a id="save" class="ui-btn ui-btn-right ui-icon-check ui-btn-icon-notext ui-corner-all" href="#'+page.back+'" data-transition="slidefade" data-direction="reverse">Save</a>' +
             '	</div>' +
             '	<div role="main" class="ui-content">' +
-            '   <input class="inputvalue '+page.mask+'" name="number" id="number-pattern" value="'+page.value+'" type="text" data-clear-btn="true">' +
+            '   <input class="inputvalue '+page.mask+'" name="number" id="number-pattern" value="'+page.value+'" type="text" data-clear-btn="true" data-precision="0" data-allowZero="true">' +
             page.content +
             '	</div>' +
             '</div>'
           );
 
-          // Input mask (http://igorescobar.github.io/jQuery-Mask-Plugin)
-          $('.currency').mask('000,000,000', {reverse: true});
-          //$('.percent').mask('0Z.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}});
-          $('.years').mask('00', {reverse: true});
-          
+          // Input mask
+          $('input.currency').maskMoney(); //https://github.com/plentz/jquery-maskmoney
+          $('input.percent').mask('0Z.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}}); //http://igorescobar.github.io/jQuery-Mask-Plugin
+          $('input.years').mask('00', {reverse: true}); //http://igorescobar.github.io/jQuery-Mask-Plugin
+
           // Bind enter key to specific button on page if input focused
           $(document).keypress(function(e){
             if (e.which == 13 && $(".inputvalue").is(":focus") ){
@@ -107,18 +126,23 @@
         calculate();
       });
 
-      // Auto-fill default data
+      //// Auto-fill default data
+      //$( document ).delegate("#main", "pageinit", function() {
+      //  $.each(page, function(index, page) {
+      //    if ( page.default != null ) {
+      //      $("a[href='#"+page.id+"'] span.value").html(page.default);
+      //    }
+      //  });
+      //  calculate();
+      //});
+
+      // Auto-fill sample data
       $( document ).delegate("#main", "pageinit", function() {
-        $.each(page, function(index, page) {
-          if ( page.default != null ) {
-            $("a[href='#"+page.id+"'] span.value").html(page.default);
-          }
+        $.each(data, function(key, value) {
+          $("a[href='#"+key+"'] span.value").html(value);
         });
         calculate();
       });
-
-      calculate();
-      
 
       // Calculate Values
       function calculate() {
@@ -127,7 +151,7 @@
         downPaymentPercent = clean( $("a[href='#downPaymentPercent'] span.value").html() );
         closingCostsPercent = clean( $("a[href='#closingCostsPercent'] span.value").html() );
         downPayment = purchasePrice * downPaymentPercent / 100;
-        equityAtPurchase = estimatedPropertyValue - purchasePrice + downPayment;
+        equityAtPurchase = Number(estimatedPropertyValue - purchasePrice + downPayment);
         loanAmount = purchasePrice - downPayment;
         closingCosts = loanAmount * closingCostsPercent / 100;
         cashAtClosing = downPayment + closingCosts;
@@ -157,12 +181,15 @@
         // Update view
         getPageData();
         update();
+
+console.log("equityAtPurchase: "+equityAtPurchase);
+
       }
 
       // Update Values
       function update() {
         $("a[href='#downPayment'] span.value").html(downPayment.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#equityAtPurchase'] span.value").html(equityAtPurchase.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#equityAtPurchase'] span.value").html(equityAtPurchase.toFixed(0));
         $("a[href='#loanAmount'] span.value").html(loanAmount.toFixed(0)).mask('000,000,000', {reverse: true});
         $("a[href='#closingCosts'] span.value").html(closingCosts.toFixed(0)).mask('000,000,000', {reverse: true});
         $("a[href='#cashAtClosing'] span.value").html(cashAtClosing.toFixed(0)).mask('000,000,000', {reverse: true});
@@ -171,18 +198,18 @@
         $("a[href='#propertyManagement'] span.value").html(propertyManagement.toFixed(0)).mask('000,000,000', {reverse: true});
         $("a[href='#maintenanceReserve'] span.value").html(maintenanceReserve.toFixed(0)).mask('000,000,000', {reverse: true});
         $("a[href='#vacancyAllowance'] span.value").html(vacancyAllowance.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#monthlyCashFlow'] span.value").html(monthlyCashFlow.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#monthlyCashFlow'] span.value").html(monthlyCashFlow.toFixed(0));
         $("a[href='#capRate'] span.value").html(capRate.toFixed(2));
         $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(2));
-        $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears.toFixed(0)).mask('000,000,000', {reverse: true});
+        $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears.toFixed(0));
         if ( isFinite(capRate)===false ) { $("a[href='#capRate'] span.value").html('0.00') };
         if ( isFinite(cashOnCashReturn)===false ) { $("a[href='#cashOnCashReturn'] span.value").html('0.00') };
       }
 
       // Clean number
       function clean( str ) {
-        str = str.replace("," , "");
-        str = str.replace("%" , "");
+        str = str.replace(/,/g, ""); //remove all commas
+        str = str.replace(/%/g, ""); //remove all %
         str = Number(str);
         return str;
       }
