@@ -21,6 +21,7 @@
     .ui-header-fixed, .ui-footer-fixed { background-color: #2ad; border-color: #2ad; color: #fff; text-shadow: 0 1px 0 #08b; }
     #summary h2 a { background-color: #29e3b4; border-color: #29e3b4; color: #fff; text-shadow: 0 1px 0 #08b; }
     .ui-li-divider { background-color: #ccc; border-color: #eaeaea; color: #666; text-shadow: none; font-weight: normal; }
+    .sm-amount { font-size: 11px; padding-left:5px; }
   </style>
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.mobile-1.4.3.min.js"></script>
@@ -29,13 +30,13 @@
   <script>
     $(document).on( "pagecreate", function() {
 
-      // Sample data
-      data = {
-        estimatedPropertyValue : "100,000",
-        purchasePrice : "1,000,000",
-        rentalIncome : "1,030",
-        propertyTaxes : "150",
-        homeownersInsurance : "50",
+      // Default settings
+      defaultData = {
+        estimatedPropertyValue : "0",
+        purchasePrice : "0",
+        rentalIncome : "0",
+        propertyTaxes : "0",
+        homeownersInsurance : "0",
         homeownersAssociation : "0",
         downPaymentPercent : "20",
         mortgageInterestRate : "5.5",
@@ -47,6 +48,24 @@
         appreciationRate : "3"
       }
 
+      // Check localStorage for data
+      var localData = JSON.parse(localStorage.getItem('localData'));
+
+      // Page Init
+      $( document ).delegate("#main", "pageinit", function() {
+        // Load local data, if exists        
+        if (localData != null) {
+          init(localData);
+        } else {
+          init(defaultData);
+        }
+      });
+
+      // New button
+      $('#new').on('click', function() {
+        init(defaultData);
+      });
+
       // Remember scroll position
       $( document ).delegate("#main", "pagebeforeshow", function() {
         $('li').on('click', function(){
@@ -54,15 +73,12 @@
         });
       });
       $( document ).delegate("#main", "pageshow", function() {
-          if(scrollPosition !== null) {
-            $.mobile.silentScroll(scrollPosition);
-          }
+        if(scrollPosition !== null) {
+          $.mobile.silentScroll(scrollPosition);
+        }
       });
       var scrollPosition = null;
 
-      // Calculate
-      //calculate();
-      
       // Create page for each list item
       $('body').on( "click", '.page li a', function(e) {
         $('.ui-dialog-temp').remove(); //garbage collection
@@ -124,24 +140,7 @@
         var value = $('#'+key+' .inputvalue').val();
         $("a[href='#"+key+"'] span.value").html(value);
         calculate();
-      });
-
-      //// Auto-fill default data
-      //$( document ).delegate("#main", "pageinit", function() {
-      //  $.each(page, function(index, page) {
-      //    if ( page.default != null ) {
-      //      $("a[href='#"+page.id+"'] span.value").html(page.default);
-      //    }
-      //  });
-      //  calculate();
-      //});
-
-      // Auto-fill sample data
-      $( document ).delegate("#main", "pageinit", function() {
-        $.each(data, function(key, value) {
-          $("a[href='#"+key+"'] span.value").html(value);
-        });
-        calculate();
+        saveData();
       });
 
       // Calculate Values
@@ -181,27 +180,35 @@
         // Update view
         getPageData();
         update();
-
-console.log("equityAtPurchase: "+equityAtPurchase);
-
       }
 
       // Update Values
       function update() {
-        $("a[href='#downPayment'] span.value").html(downPayment.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#equityAtPurchase'] span.value").html(equityAtPurchase.toFixed(0));
-        $("a[href='#loanAmount'] span.value").html(loanAmount.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#closingCosts'] span.value").html(closingCosts.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#cashAtClosing'] span.value").html(cashAtClosing.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#mortgagePayment'] span.value").html(mortgagePayment.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#mortgagePaymentYearly'] span.value").html(mortgagePaymentYearly.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#propertyManagement'] span.value").html(propertyManagement.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#maintenanceReserve'] span.value").html(maintenanceReserve.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#vacancyAllowance'] span.value").html(vacancyAllowance.toFixed(0)).mask('000,000,000', {reverse: true});
-        $("a[href='#monthlyCashFlow'] span.value").html(monthlyCashFlow.toFixed(0));
+        $("a[href='#estimatedPropertyValue'] span.value").html(formatMoney(estimatedPropertyValue));
+        $("a[href='#purchasePrice'] span.value").html(formatMoney(purchasePrice));
+        $("a[href='#equityAtPurchase'] span.value").html(formatMoney(equityAtPurchase));
+        $("a[href='#loanAmount'] span.value").html(formatMoney(loanAmount));
+        $("a[href='#downPayment'] span.value").html(formatMoney(downPayment));
+        $("a[href='#closingCosts'] span.value").html(formatMoney(closingCosts));
+        $("a[href='#cashAtClosing'] span.value").html(formatMoney(cashAtClosing));
+        $("a[href='#mortgagePayment'] span.value").html(formatMoney(mortgagePayment));
+        $("a[href='#mortgagePaymentYearly'] span.value").html(formatMoney(mortgagePaymentYearly));
+        $("a[href='#rentalIncome'] span.value").html(formatMoney(rentalIncome));
+        $("a[href='#propertyTaxes'] span.value").html(formatMoney(propertyTaxes));
+        $("a[href='#homeownersInsurance'] span.value").html(formatMoney(homeownersInsurance));
+        $("a[href='#homeownersAssociation'] span.value").html(formatMoney(homeownersAssociation));
+        $("a[href='#propertyManagement'] span.value").html(formatMoney(propertyManagement));
+        $("a[href='#maintenanceReserve'] span.value").html(formatMoney(maintenanceReserve));
+        $("a[href='#vacancyAllowance'] span.value").html(formatMoney(vacancyAllowance));
+        $("a[href='#monthlyCashFlow'] span.value").html(formatMoney(monthlyCashFlow));
         $("a[href='#capRate'] span.value").html(capRate.toFixed(2));
         $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(2));
-        $("a[href='#equityInFiveYears'] span.value").html(equityInFiveYears.toFixed(0));
+        $("a[href='#equityInFiveYears'] span.value").html(formatMoney(equityInFiveYears));
+        $("a[href='#downPayment'] span.sm-amount").html('('+downPaymentPercent+'%)');
+        $("a[href='#closingCosts'] span.sm-amount").html('('+closingCostsPercent+'%)');
+        $("a[href='#propertyManagement'] span.sm-amount").html('('+propertyManagementPercent+'%)');
+        $("a[href='#maintenanceReserve'] span.sm-amount").html('('+maintenanceReservePercent+'%)');
+        $("a[href='#vacancyAllowance'] span.sm-amount").html('('+vacancyAllowancePercent+'%)');
         if ( isFinite(capRate)===false ) { $("a[href='#capRate'] span.value").html('0.00') };
         if ( isFinite(cashOnCashReturn)===false ) { $("a[href='#cashOnCashReturn'] span.value").html('0.00') };
       }
@@ -229,6 +236,51 @@ console.log("equityAtPurchase: "+equityAtPurchase);
         return Orig * Math.pow((1.00 + rate), yrs);
       }
 
+      // Format money
+      function formatMoney(number, places, symbol, thousand, decimal) {
+        number = number || 0;
+        places = !isNaN(places = Math.abs(places)) ? places : 0;
+        //symbol = symbol !== undefined ? symbol : "$";
+        symbol = symbol !== undefined ? symbol : "";
+        thousand = thousand || ",";
+        decimal = decimal || ".";
+        var negative = number < 0 ? "-" : "",
+            i = parseInt(number = Math.abs(+number || 0).toFixed(places), 10) + "",
+            j = (j = i.length) > 3 ? j % 3 : 0;
+        return symbol + negative + (j ? i.substr(0, j) + thousand : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thousand) + (places ? decimal + Math.abs(number - i).toFixed(places).slice(2) : "");
+      }
+
+      function saveData() {
+        data = {
+          estimatedPropertyValue : estimatedPropertyValue,
+          purchasePrice : purchasePrice,
+          rentalIncome : rentalIncome,
+          propertyTaxes : propertyTaxes,
+          homeownersInsurance : homeownersInsurance,
+          homeownersAssociation : homeownersAssociation,
+          downPaymentPercent : downPaymentPercent,
+          mortgageInterestRate : mortgageInterestRate,
+          mortgageLoanTerm : mortgageLoanTerm,
+          closingCostsPercent : closingCostsPercent,
+          propertyManagementPercent : propertyManagementPercent,
+          maintenanceReservePercent : maintenanceReservePercent,
+          vacancyAllowancePercent : vacancyAllowancePercent,
+          appreciationRate : appreciationRate
+        }
+        var dataToStore = JSON.stringify(data);
+        localStorage.setItem('localData', dataToStore);
+        //console.log(dataToStore); //debug
+      } 
+
+      // Initialize data
+      function init(data) {
+        $.each(data, function(key, value) {
+          $("a[href='#"+key+"'] span.value").html(value);
+        });
+        calculate();
+        saveData();
+      }
+
       // Page data
       function getPageData() {
         page = {
@@ -239,7 +291,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "currency",
             back : "main",
             value: estimatedPropertyValue,
-            default : "0",
             content : "<p>The estimated property value can be determined from comparable property sales, Multiple Listing Service (MLS) data, appraisal reports, public records, etc. This figure is used as a baseline amount to estimate equity yet is not used to estimate cash flow.</p>"
           },
           purchasePrice : {
@@ -249,7 +300,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "currency",
             back : "main",
             value: purchasePrice,
-            default : "0",
             content : "<p>The purchase price is the listed price, seller's price, or the anticipated cost of purchasing the property.</p>"
           },
           downPayment : {
@@ -308,7 +358,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "currency",
             back : "main",
             value: rentalIncome,
-            default : "0",
             content : "<p>Rental Income is the estimated amount of total monthly rent for a given property. For duplex, triplex, etc. or properties with more than one tenant, enter a total amount of monthly rental income for all tenants.</p>"
           },
           propertyTaxes : {
@@ -318,7 +367,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "currency",
             back : "main",
             value : propertyTaxes,
-            default : "0",
             content : "<p>Property Taxes are taxes assessed on real estate by the local government. The tax is usually based on the value of the property (including the land) you own. Enter the estimated monthly amount of property taxes for this property.</p>"
           },
           homeownersInsurance : {
@@ -328,7 +376,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "currency",
             back : "main",
             value : homeownersInsurance,
-            default : "0",
             content : "<p>Homeowners Insurance is a form of property insurance designed to protect an individual's home against damages to the house itself, or to possessions in the home. Homeowners insurance also provides liability coverage against accidents in the home or on the property. Enter the estimated monthly amount of homeowners insurance for this property.</p>"
           },
           homeownersAssociation : {
@@ -338,7 +385,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "currency",
             back : "main",
             value : homeownersAssociation,
-            default : "0",
             content : "<p>The Homeowners Association (HOA) fee is an amount of money that must be paid monthly by owners of certain types of residential property to an organization that assists with maintaining and improving that property and others in the same group. HOA fees are almost always levied on condominium owners, but they may also apply in some single family neighborhoods. If applicable for this property, enter a monthly amount of HOA dues.</p>"
           },
           propertyManagement : {
@@ -369,7 +415,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "percent",
             back : "settings",
             value : downPaymentPercent,
-            default : "20",
             content : "<p>Down Payment Percent is a percentage of the full purchase price, used to calculate the amount of Down Payment. Because houses are extremely expensive, home buyers typically pay down payments that equal 5-25% of the total value of the home. For investment properties, the down payment percent is typically 20% minimum.</p>"
           },
           mortgageInterestRate : {
@@ -379,7 +424,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "percent",
             back : "settings",
             value : mortgageInterestRate,
-            default : "5.0",
             content : "<p>The Mortgage Interest Rate is the amount charged, expressed as a percentage of principal, by a lender to a borrower for the use of assets. Interest rates are typically noted on an annual basis, known as the annual percentage rate (APR). Interest is essentially a rental, or leasing charge to the borrower, for the asset's use.</p>"
           },
           mortgageLoanTerm : {
@@ -389,7 +433,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "years",
             back : "settings",
             value : mortgageLoanTerm,
-            default : "30",
             content : "<p>The Mortgage Loan Term is the period of time assigned as the lifespan of the loan, expressed in number of years (e.g., 30 years, 15 years, etc.). The Term is the time it takes for all payments to be made by the borrower and received by the lender.</p>"
           },
           closingCostsPercent : {
@@ -399,7 +442,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "percent",
             back : "settings",
             value : closingCostsPercent,
-            default : "5.0",
             content : "<p>The Closing Cost Percent is a percentage amount of the loan amount, typically around 5% (could be higher or lower depending on the lender), which is used as a way to quickly estimate the total amount of closing costs, such as loan origination fees, discount points, appraisal fees, title searches, title insurance, surveys, taxes, deed-recording fees and credit report charges.</p>"
           },
           propertyManagementPercent : {
@@ -409,7 +451,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "percent",
             back : "settings",
             value : propertyManagementPercent,
-            default : "10.0",
             content : "<p>A Property Management Percent is a percentage of the monthly rent, typically around 10% (could be higher or lower depending on the Property Management company), which is deducted out of the rental income amount on a monthly basis. Property Management companies are paid this fee in exchange for the administration of the property, tenant placement, etc. on behalf of the owner.</p>"
           },
           maintenanceReservePercent : {
@@ -419,7 +460,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "percent",
             back : "settings",
             value : maintenanceReservePercent,
-            default : "5.0",
             content : "<p>The Maintenance Reserve Percent is a percentage of the monthly rent, used to calculate the amount of monthly maintenance reserves to set aside for maintenance costs, in order to keep the property in good condition for the tenant.</p>"
           },
           vacancyAllowancePercent : {
@@ -429,7 +469,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "percent",
             back : "settings",
             value : vacancyAllowancePercent,
-            default : "7.0",
             content : "<p>The Vacancy Allowance Percent is a percentage of the monthly rent, used to calculate the amount of monthly vacancy allowance to set aside for vacancy costs, in order to account for the loss in rental income during vacancies.</p>"
           },
           appreciationRate : {
@@ -439,7 +478,6 @@ console.log("equityAtPurchase: "+equityAtPurchase);
             mask : "percent",
             back : "settings",
             value : appreciationRate,
-            default : "3.0",
             content : "<p>The Appreciation Rate is the percent increase in the value of a property over time. The increase can occur for a number of reasons including increased demand or weakening supply, changes in inflation or interest rates, or other market conditions which may cause the value of the property to rise. This is the opposite of depreciation, which is a decrease over time.</p>"
           },
           monthlyCashFlow : {
@@ -485,48 +523,48 @@ MAIN
 <div data-role="page" id="main" class="page">
 
 	<div data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">
-    <a href="#" class="ui-btn ui-corner-all ui-icon-calculator ui-btn-icon-left ui-btn-icon-notext" style="background-color: #2ad;">Calculator</a>
+    <a id="new" href="#" class="ui-btn ui-btn-left ui-corner-all ui-icon-plus ui-btn-icon-left ui-btn-icon-notext">New</a>
 		<h1>Property Calculator</h1>
-    <a href="#settings" class="ui-btn ui-corner-all ui-icon-gear ui-btn-icon-right ui-btn-icon-notext" data-transition="slideup">Settings</a>
+    <a href="#settings" class="ui-btn ui-btn-right ui-corner-all ui-icon-gear ui-btn-icon-right ui-btn-icon-notext" data-transition="slideup">Settings</a>
 	</div><!-- /header -->
 
 	<div role="main">
 
     <ul data-role="listview" data-inset="false">
       <li data-role="list-divider" data-theme="b">Basic Purchase Information</li>
-      <li class="ui-alt-icon ui-nodisc-icon"><a href="#estimatedPropertyValue" data-transition="slidefade">Est. Property Value<span class="value money">0</span></a></li>
-      <li class="ui-alt-icon ui-nodisc-icon"><a href="#purchasePrice" data-transition="slidefade">Purchase Price<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#equityAtPurchase" data-rel="dialog">Equity at Purchase<span class="value money">0</span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#estimatedPropertyValue" data-transition="slidefade">Est. Property Value<span class="value money"></span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#purchasePrice" data-transition="slidefade">Purchase Price<span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#equityAtPurchase" data-rel="dialog">Equity at Purchase<span class="value money"></span></a></li>
     </ul>
 
     <ul data-role="listview" data-inset="false">
       <li data-role="list-divider" data-theme="b">Mortgage Calculations</li>
-      <li data-icon="info"><a href="#loanAmount" data-rel="dialog">Loan Amount<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#downPayment" data-rel="dialog">Down Payment<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#closingCosts" data-rel="dialog">Closing Costs<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#cashAtClosing" data-rel="dialog">Cash at Closing<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#mortgagePaymentYearly" data-rel="dialog">Mortgage Payment Yearly<span class="value money">0</span></a></li>
+      <li data-icon="info"><a href="#loanAmount" data-rel="dialog">Loan Amount<span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#downPayment" data-rel="dialog">Down Payment<span class="sm-amount"></span></span><span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#closingCosts" data-rel="dialog">Closing Costs<span class="sm-amount"></span><span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#cashAtClosing" data-rel="dialog">Cash at Closing<span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#mortgagePaymentYearly" data-rel="dialog">Mortgage Payment<span class="sm-amount">(Yearly)</span><span class="value money"></span></a></li>
     </ul>
     
     <ul data-role="listview" data-inset="false">
-      <li data-role="list-divider" data-theme="b" data-transition="none">Property Calculations</li>
-      <li class="ui-alt-icon ui-nodisc-icon"><a href="#rentalIncome" data-transition="slidefade">Rental Income<span class="value money">0</span></a></li>
-      <li class="ui-alt-icon ui-nodisc-icon"><a href="#propertyTaxes" data-transition="slidefade">Property Taxes<span class="value money">0</span></a></li>
-      <li class="ui-alt-icon ui-nodisc-icon"><a href="#homeownersInsurance" data-transition="slidefade">Homeowners Insurance<span class="value money">0</span></a></li>
-      <li class="ui-alt-icon ui-nodisc-icon"><a href="#homeownersAssociation" data-transition="slidefade">Homeowners Association<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#propertyManagement" data-rel="dialog">Property Management<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#maintenanceReserve" data-rel="dialog">Maintenance Reserve<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#vacancyAllowance" data-rel="dialog">Vacancy Allowance<span class="value money">0</span></a></li>
-      <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money">0</span></a></li>
+      <li data-role="list-divider" data-theme="b" data-transition="none">Property Calculations<span class="sm-amount">(Per Month)</span></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#rentalIncome" data-transition="slidefade">Rental Income<span class="value money"></span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#propertyTaxes" data-transition="slidefade">Property Taxes<span class="value money"></span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#homeownersInsurance" data-transition="slidefade">Homeowners Insurance<span class="value money"></span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#homeownersAssociation" data-transition="slidefade">Homeowners Association<span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#propertyManagement" data-rel="dialog">Property Management<span class="sm-amount"></span><span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#maintenanceReserve" data-rel="dialog">Maintenance Reserve<span class="sm-amount"></span><span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#vacancyAllowance" data-rel="dialog">Vacancy Allowance<span class="sm-amount"></span><span class="value money"></span></a></li>
+      <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money"></span></a></li>
     </ul>
 
     <div data-role="footer" data-position="fixed" data-theme="b" data-tap-toggle="false">
       <ul data-role="listview">
-        <li data-icon="info"><a href="#monthlyCashFlow" data-rel="dialog">Monthly Cash Flow<span class="value money">0</span></a></li>        
-        <li data-icon="info"><a href="#capRate" data-rel="dialog">Cap Rate<span class="value percent">0</span></a></li>
-        <li data-icon="info"><a href="#cashOnCashReturn" data-rel="dialog">Cash on Cash Return<span class="value percent">0</span></a></li>
-        <li data-icon="info"><a href="#equityInFiveYears" data-rel="dialog">Equity in Five Years<span class="value money">0</span></a></li>
+        <li data-icon="info"><a href="#monthlyCashFlow" data-rel="dialog">Monthly Cash Flow<span class="value money"></span></a></li>        
+        <li data-icon="info"><a href="#capRate" data-rel="dialog">Cap Rate<span class="value percent"></span></a></li>
+        <li data-icon="info"><a href="#cashOnCashReturn" data-rel="dialog">Cash on Cash Return<span class="value percent"></span></a></li>
+        <li data-icon="info"><a href="#equityInFiveYears" data-rel="dialog">Equity in Five Years<span class="value money"></span></a></li>
       </ul>
     </div>
     
@@ -549,15 +587,15 @@ SETTINGS
     
     <ul data-role="listview" data-inset="false" class="ui-nodisc-icon ui-alt-icon">
       <li data-role="list-divider" data-theme="b">Mortgage Assumptions</li>
-      <li><a href="#downPaymentPercent" data-transition="slidefade">Down Payment Percent<span class="value percent">0</span></a></li>
-      <li><a href="#mortgageInterestRate" data-transition="slidefade">Mortgage Interest Rate<span class="value percent">0</span></a></li>
-      <li><a href="#mortgageLoanTerm" data-transition="slidefade">Mortgage Loan Term<span class="value term">0</span></a></li>
-      <li><a href="#closingCostsPercent" data-transition="slidefade">Closing Costs Percent<span class="value percent">0</span></a></li>
+      <li><a href="#downPaymentPercent" data-transition="slidefade">Down Payment Percent<span class="value percent"></span></a></li>
+      <li><a href="#mortgageInterestRate" data-transition="slidefade">Mortgage Interest Rate<span class="value percent"></span></a></li>
+      <li><a href="#mortgageLoanTerm" data-transition="slidefade">Mortgage Loan Term<span class="value term"></span></a></li>
+      <li><a href="#closingCostsPercent" data-transition="slidefade">Closing Costs Percent<span class="value percent"></span></a></li>
       <li data-role="list-divider" data-theme="b">Property Assumptions</li>
-      <li><a href="#propertyManagementPercent" data-transition="slidefade">Property Management<span class="value percent">0</span></a></li>
-      <li><a href="#maintenanceReservePercent" data-transition="slidefade">Maintenance Reserve<span class="value percent">0</span></a></li>
-      <li><a href="#vacancyAllowancePercent" data-transition="slidefade">Vacancy Allowance<span class="value percent">0</span></a></li>
-      <li><a href="#appreciationRate" data-transition="slidefade">Appreciation Rate<span class="value percent">0</span></a></li>
+      <li><a href="#propertyManagementPercent" data-transition="slidefade">Property Management<span class="value percent"></span></a></li>
+      <li><a href="#maintenanceReservePercent" data-transition="slidefade">Maintenance Reserve<span class="value percent"></span></a></li>
+      <li><a href="#vacancyAllowancePercent" data-transition="slidefade">Vacancy Allowance<span class="value percent"></span></a></li>
+      <li><a href="#appreciationRate" data-transition="slidefade">Appreciation Rate<span class="value percent"></span></a></li>
     </ul>
     
 	</div><!-- /content -->

@@ -45,12 +45,16 @@
     <preference name="disable-cursor"             value="false" />          <!-- blackberry: prevents a mouse-icon/cursor from being displayed on the app -->
     <preference name="android-minSdkVersion"      value="7" />              <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
     <preference name="android-installLocation"    value="auto" />           <!-- android: app install location. 'auto' will choose. 'internalOnly' is device memory. 'preferExternal' is SDCard. -->
+    <preference name="StatusBarOverlaysWebView"   value="true" />          <!-- http://blog.cornbeast.com/2013/10/fixing-the-transparent-ios7-status-bar-for-phonegap-and-jquery-mobile/ -->
 
     <!-- Plugins can also be added here. -->
     <!--
         <gap:plugin name="Example" />
         A list of available plugins are available at https://build.phonegap.com/docs/plugins
     -->
+    <gap:plugin name="com.phonegap.plugin.statusbar" version="1.1.0" />
+    <gap:plugin name="org.apache.cordova.statusbar" version="0.1.4" />
+
 
     <!-- Define app icon for each platform. -->
     <icon src="icon.png" />
