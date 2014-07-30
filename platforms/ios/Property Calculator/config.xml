@@ -45,9 +45,6 @@
     <preference name="disable-cursor" value="false" />
     <preference name="android-minSdkVersion" value="7" />
     <preference name="android-installLocation" value="auto" />
-    <preference name="StatusBarOverlaysWebView" value="true" />
-    <gap:plugin name="com.phonegap.plugin.statusbar" version="1.1.0" />
-    <gap:plugin name="org.apache.cordova.statusbar" version="0.1.4" />
     <icon src="icon.png" />
     <icon gap:density="ldpi" gap:platform="android" src="cordova/cordova_android_36.png" />
     <icon gap:density="mdpi" gap:platform="android" src="cordova/cordova_android_48.png" />
