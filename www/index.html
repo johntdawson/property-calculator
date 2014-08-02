@@ -43,13 +43,13 @@
         homeownersAssociation : "0",
         otherExpenses : "0",
         downPaymentPercent : "20",
-        mortgageInterestRate : "5.5",
+        mortgageInterestRate : "5.0",
         mortgageLoanTerm : "30",
         closingCostsPercent : "5",
         propertyManagementPercent : "10",
         maintenanceReservePercent : "5",
         vacancyAllowancePercent : "7",
-        appreciationRate : "4",
+        appreciationRate : "3",
         otherExpensesDescription : ""
       }
 
@@ -103,6 +103,19 @@
           $('.ui-dialog-temp').remove(); //garbage collection
           href = $(this).attr('href').replace("#" , "");
           createPage(page[href]);
+        });
+
+        // Email property
+        $('#mail').on('click', function() {
+          var subject = encodeURI("Property Details: " + propertyName);
+          var body = encodeURI(
+            "Purchase Price: " + purchasePrice + "\n" +
+            "Rental Income: " + rentalIncome + "\n" +
+            "Operating Expenses" + operatingExpenses + "\n" +
+            "Monthly Cash Flow" + monthlyCashFlow + "\n"
+          );
+          var href = "mailto:?subject="+subject+"&body="+body;
+          $(this).attr('href',href)
         });
 
       });
@@ -635,6 +648,7 @@ MAIN
     <a href="#list" class="ui-btn ui-btn-left ui-corner-all ui-icon-bars ui-btn-icon-left ui-btn-icon-notext" data-transition="slidefade" data-direction="reverse">List</a>
 		<h1><!-- propertyName --></h1>
     <a href="#settings" class="ui-btn ui-btn-right ui-corner-all ui-icon-gear ui-btn-icon-right ui-btn-icon-notext" data-transition="slideup">Settings</a>
+    <a id="mail" href="#" class="ui-btn ui-btn-right ui-corner-all ui-icon-mail ui-btn-icon-right ui-btn-icon-notext" data-transition="slideup" style="right:40px;">Share</a>
 	</div><!-- /header -->
 
 	<div role="main">
