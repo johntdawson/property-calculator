@@ -23,6 +23,7 @@
     .ui-li-divider { background-color: #ccc; border-color: #eaeaea; color: #666; text-shadow: none; font-weight: normal; }
     .sm-amount { font-size: 11px; padding-left:5px; }
     .ui-header-fixed .ui-btn { top: 18px; }
+    .ui-page { -webkit-backface-visibility: hidden; }
   </style>
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.mobile-1.4.3.min.js"></script>
@@ -33,12 +34,14 @@
 
       // Default settings
       defaultData = {
+        propertyName : "New Property",
         estimatedPropertyValue : "0",
         purchasePrice : "0",
         rentalIncome : "0",
         propertyTaxes : "0",
         homeownersInsurance : "0",
         homeownersAssociation : "0",
+        otherExpenses : "0",
         downPaymentPercent : "20",
         mortgageInterestRate : "5.5",
         mortgageLoanTerm : "30",
@@ -46,26 +49,83 @@
         propertyManagementPercent : "10",
         maintenanceReservePercent : "5",
         vacancyAllowancePercent : "7",
-        appreciationRate : "3"
+        appreciationRate : "4",
+        otherExpensesDescription : ""
       }
 
-      // Check localStorage for data
-      var localData = JSON.parse(localStorage.getItem('localData'));
+      // Pageinit: List
+      $( document ).delegate("#list", "pageinit", function() {
 
-      // Page Init
-      $( document ).delegate("#main", "pageinit", function() {
+        // New button
+        $('#new').on('click', function() {
+          var dataToStore = JSON.stringify(defaultData);
+          var id = 'property-' + Date.now(); 
+          localStorage.setItem( id, dataToStore );
+          $('#list ul li[class="ui-first-child"]').removeAttr('class');
+          $('#list ul').prepend( $('<li class="ui-li-has-alt" id="'+id+'"><a class="ui-first-child ui-btn ui-btn-icon-right ui-icon-carat-r" href="#main" data-transition="slidefade">'+defaultData.propertyName+'</a><a class="delete ui-btn ui-btn-icon-notext ui-icon-delete" href="#" title="Delete"></a></li>').hide().fadeIn(400) );
+        });
+
+      });
+
+      // Pagebeforeshow: List
+      $( document ).delegate("#list", "pagebeforeshow", function() {
+
         // Load local data, if exists        
-        if (localData != null) {
-          init(localData);
+        if (localStorage != null) {
+          // Load data
+          var properties = localStorage;
+          $('#properties').html('');
+          $.each(properties, function( id, data ) {
+            var property = JSON.parse(data);
+            $('#properties').append('<li class="ui-li-has-alt" id="'+id+'"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="#main" data-transition="slidefade">'+property.propertyName+'</a><a class="delete ui-btn ui-btn-icon-notext ui-icon-delete" href="#" title="Delete"></a></li>');
+          });
+          // Sort properties by id (most recent first)
+          $("#properties").html(
+              $("#properties").children("li").sort(function (b, a) {
+                  return $(a).attr("id").toUpperCase().localeCompare(
+                      $(b).attr("id").toUpperCase());
+              }) // End Sort
+          ); // End HTML
+          // Update styling
+          $('#list ul li').first().addClass( "ui-first-child" );
+          $('#list ul li').last().addClass( "ui-last-child" );
         } else {
-          init(defaultData);
+          console.log("no data");
         }
+
       });
 
-      // New button
-      $('#new').on('click', function() {
-        init(defaultData);
+      // Pageinit: Main
+      $( document ).delegate("#main", "pageinit", function() {
+
+        // Create page for each list item
+        $('.page li a').on('click', function() {
+          $('.ui-dialog-temp').remove(); //garbage collection
+          href = $(this).attr('href').replace("#" , "");
+          createPage(page[href]);
+        });
+
       });
+
+      // Page Init: Main
+      $( document ).delegate("#main", "pagebeforeshow", function() {
+        data = JSON.parse(localStorage.getItem(id));
+        init(data);
+      });
+
+      // Property button
+      $( document ).on( "click", '#properties li', function(e) {
+        id = $(this).attr('id');
+        //console.log(id);
+      });
+
+      // Delete button
+      $( document ).on( "click", '#properties li a.delete', function(e) {
+        id = $(this).parent().attr('id');
+        localStorage.removeItem(id);
+        $(this).parent().remove();
+      });
+
 
       // Remember scroll position
       $( document ).delegate("#main", "pagebeforeshow", function() {
@@ -80,13 +140,7 @@
       });
       var scrollPosition = null;
 
-      // Create page for each list item
-      $('body').on( "click", '.page li a', function(e) {
-        $('.ui-dialog-temp').remove(); //garbage collection
-        href = $(this).attr('href').replace("#" , "");
-        createPage(page[href]);
-      });
-
+      // Create pages
       createPage = function( page ) {
 
         // Create pages with input fields
@@ -146,6 +200,7 @@
 
       // Calculate Values
       function calculate() {
+        propertyName = $("a[href='#propertyName'] span.value").html();
         estimatedPropertyValue = clean( $("a[href='#estimatedPropertyValue'] span.value").html() );
         purchasePrice = clean( $("a[href='#purchasePrice'] span.value").html() );
         downPaymentPercent = clean( $("a[href='#downPaymentPercent'] span.value").html() );
@@ -169,7 +224,9 @@
         propertyManagement = Math.round( propertyManagementPercent / 100 * rentalIncome );
         maintenanceReserve = Math.round( maintenanceReservePercent / 100 * rentalIncome );
         vacancyAllowance = Math.round( vacancyAllowancePercent / 100 * rentalIncome );
-        operatingExpenses = propertyTaxes + homeownersInsurance + homeownersAssociation + propertyManagement + maintenanceReserve + vacancyAllowance;
+        otherExpenses = clean( $("a[href='#otherExpenses'] span.value").html() );
+        otherExpensesDescription = $("a[href='#otherExpensesDescription'] span.value").html();
+        operatingExpenses = propertyTaxes + homeownersInsurance + homeownersAssociation + propertyManagement + maintenanceReserve + vacancyAllowance + otherExpenses;
         monthlyCashFlow = rentalIncome - operatingExpenses - mortgagePayment;
         appreciationRate = clean( $("a[href='#appreciationRate'] span.value").html() );        
         appreciationYear1 = Math.round( estimatedPropertyValue * appreciationRate / 100 );
@@ -185,6 +242,7 @@
 
       // Update Values
       function update() {
+        $("#main h1").html(propertyName);
         $("a[href='#estimatedPropertyValue'] span.value").html(formatMoney(estimatedPropertyValue));
         $("a[href='#purchasePrice'] span.value").html(formatMoney(purchasePrice));
         $("a[href='#equityAtPurchase'] span.value").html(formatMoney(equityAtPurchase));
@@ -201,6 +259,7 @@
         $("a[href='#propertyManagement'] span.value").html(formatMoney(propertyManagement));
         $("a[href='#maintenanceReserve'] span.value").html(formatMoney(maintenanceReserve));
         $("a[href='#vacancyAllowance'] span.value").html(formatMoney(vacancyAllowance));
+        $("a[href='#otherExpenses'] span.value").html(formatMoney(otherExpenses));
         $("a[href='#monthlyCashFlow'] span.value").html(formatMoney(monthlyCashFlow));
         $("a[href='#capRate'] span.value").html(capRate.toFixed(2));
         $("a[href='#cashOnCashReturn'] span.value").html(cashOnCashReturn.toFixed(2));
@@ -210,6 +269,7 @@
         $("a[href='#propertyManagement'] span.sm-amount").html('('+propertyManagementPercent+'%)');
         $("a[href='#maintenanceReserve'] span.sm-amount").html('('+maintenanceReservePercent+'%)');
         $("a[href='#vacancyAllowance'] span.sm-amount").html('('+vacancyAllowancePercent+'%)');
+        if ( otherExpensesDescription != '' ) { $("a[href='#otherExpenses'] span.sm-amount").html('('+otherExpensesDescription+')') };
         if ( isFinite(capRate)===false ) { $("a[href='#capRate'] span.value").html('0.00') };
         if ( isFinite(cashOnCashReturn)===false ) { $("a[href='#cashOnCashReturn'] span.value").html('0.00') };
       }
@@ -253,12 +313,14 @@
 
       function saveData() {
         data = {
+          propertyName : propertyName,
           estimatedPropertyValue : estimatedPropertyValue,
           purchasePrice : purchasePrice,
           rentalIncome : rentalIncome,
           propertyTaxes : propertyTaxes,
           homeownersInsurance : homeownersInsurance,
           homeownersAssociation : homeownersAssociation,
+          otherExpenses : otherExpenses,
           downPaymentPercent : downPaymentPercent,
           mortgageInterestRate : mortgageInterestRate,
           mortgageLoanTerm : mortgageLoanTerm,
@@ -266,10 +328,11 @@
           propertyManagementPercent : propertyManagementPercent,
           maintenanceReservePercent : maintenanceReservePercent,
           vacancyAllowancePercent : vacancyAllowancePercent,
-          appreciationRate : appreciationRate
+          appreciationRate : appreciationRate,
+          otherExpensesDescription : otherExpensesDescription
         }
         var dataToStore = JSON.stringify(data);
-        localStorage.setItem('localData', dataToStore);
+        localStorage.setItem(id, dataToStore);
         //console.log(dataToStore); //debug
       } 
 
@@ -285,6 +348,14 @@
       // Page data
       function getPageData() {
         page = {
+          propertyName : {
+            id : "propertyName",
+            title : "Property Name",
+            type : "input",
+            back : "main",
+            value: propertyName,
+            content : "<p>Enter a property name.</p>"
+          },
           estimatedPropertyValue : {
             id : "estimatedPropertyValue",
             title : "Estimated Property Value",
@@ -409,6 +480,23 @@
             back : "main",
             content : "<p>A Vacancy Allowance is a monthly sum of money, usually a percentage of the rental income, set aside for tenant vacancies or costs incurred between tenants when there is a loss of rental income.</p><p><em>Vacancy Allowance ($"+vacancyAllowance+") = Monthly Rent ($"+rentalIncome+") x Vacancy Allowance Percent ("+vacancyAllowancePercent+"%)</em></p>"
           },
+          otherExpenses : {
+            id : "otherExpenses",
+            title : "Other Expenses",
+            type : "input",
+            back : "main",
+            value: otherExpenses,
+            content : "<p>Enter any additional miscellaneous monthly expense (such as gardening, pest control, utilities, closing cost loan interest, etc.)</p>"
+          },
+          otherExpensesDescription : {
+            id : "otherExpensesDescription",
+            title : "Other Expenses Description",
+            type : "input",
+            mask : "text",
+            back : "main",
+            value: otherExpensesDescription,
+            content : "<p>Enter a brief description of additional miscellaneous monthly expenses (such as gardening, pest control, utilities, closing cost loan interest, etc.)</p>"
+          },
           downPaymentPercent : {
             id : "downPaymentPercent",
             title : "Down Payment Percent",
@@ -519,13 +607,33 @@
 <body>
 
 <!---------------------------------------
+LIST
+---------------------------------------->
+<div data-role="page" id="list" class="page">
+
+	<div id="listheader" data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">
+		<h1>Property Calculator</h1>
+    <a id="new" href="#" class="ui-btn ui-btn-right ui-corner-all ui-icon-plus ui-btn-icon-right ui-btn-icon-notext" data-transition="slidefade">New</a>
+	</div><!-- /header -->
+
+	<div role="main">
+    
+    <ul id="properties" data-role="listview" data-inset="false" class="ui-nodisc-icon ui-alt-icon touch" data-icon="false" data-split-icon="delete">
+    </ul>
+    
+	</div><!-- /content -->
+
+</div><!-- /settings -->
+
+
+<!---------------------------------------
 MAIN
 ---------------------------------------->
 <div data-role="page" id="main" class="page">
 
 	<div data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">
-    <a id="new" href="#" class="ui-btn ui-btn-left ui-corner-all ui-icon-plus ui-btn-icon-left ui-btn-icon-notext">New</a>
-		<h1>Property Calculator</h1>
+    <a href="#list" class="ui-btn ui-btn-left ui-corner-all ui-icon-bars ui-btn-icon-left ui-btn-icon-notext" data-transition="slidefade" data-direction="reverse">List</a>
+		<h1><!-- propertyName --></h1>
     <a href="#settings" class="ui-btn ui-btn-right ui-corner-all ui-icon-gear ui-btn-icon-right ui-btn-icon-notext" data-transition="slideup">Settings</a>
 	</div><!-- /header -->
 
@@ -558,6 +666,7 @@ MAIN
       <li data-icon="info"><a href="#maintenanceReserve" data-rel="dialog">Maintenance Reserve<span class="sm-amount"></span><span class="value money"></span></a></li>
       <li data-icon="info"><a href="#vacancyAllowance" data-rel="dialog">Vacancy Allowance<span class="sm-amount"></span><span class="value money"></span></a></li>
       <li data-icon="info"><a href="#mortgagePayment" data-rel="dialog">Mortgage Payment<span class="value money"></span></a></li>
+      <li class="ui-alt-icon ui-nodisc-icon"><a href="#otherExpenses" data-transition="slidefade">Other Expenses<span class="sm-amount"></span><span class="value money"></span></a></li>
     </ul>
 
     <div data-role="footer" data-position="fixed" data-theme="b" data-tap-toggle="false">
@@ -597,11 +706,16 @@ SETTINGS
       <li><a href="#maintenanceReservePercent" data-transition="slidefade">Maintenance Reserve<span class="value percent"></span></a></li>
       <li><a href="#vacancyAllowancePercent" data-transition="slidefade">Vacancy Allowance<span class="value percent"></span></a></li>
       <li><a href="#appreciationRate" data-transition="slidefade">Appreciation Rate<span class="value percent"></span></a></li>
+      <li data-role="list-divider" data-theme="b">Other Settings</li>
+      <li><a href="#propertyName" data-transition="slidefade">Property Name<span class="value" style="display: none;"></span></a></li>
+      <li><a href="#otherExpensesDescription" data-transition="slidefade">Other Expenses Description<span class="value" style="display: none;"></span></a></li>
     </ul>
     
 	</div><!-- /content -->
 
 </div><!-- /settings -->
+
+
 
 </body>
 </html>
