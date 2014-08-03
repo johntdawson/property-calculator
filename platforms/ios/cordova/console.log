@@ -12,3 +12,9 @@ Terminating in response to SpringBoard's termination.
 2014-08-03 16:16:28.988 Property Calculator[72767:90b] Resetting plugins due to page load.
 2014-08-03 16:16:29.412 Property Calculator[72767:90b] Finished load of: file:///Users/johndawson/Library/Application%20Support/iPhone%20Simulator/7.1/Applications/E45DAD9C-AC36-4791-BBB9-1634D78F9F2D/Property%20Calculator.app/www/index.html
 Terminating in response to SpringBoard's termination.
+2014-08-03 16:21:42.710 Property Calculator[74333:90b] Multi-tasking -> Device: YES, App: YES
+2014-08-03 16:21:42.791 Property Calculator[74333:90b] [CDVTimer][file] 2.548993ms
+2014-08-03 16:21:42.792 Property Calculator[74333:90b] [CDVTimer][TotalPluginStartup] 3.620028ms
+2014-08-03 16:21:43.003 Property Calculator[74333:90b] Resetting plugins due to page load.
+2014-08-03 16:21:43.418 Property Calculator[74333:90b] Finished load of: file:///Users/johndawson/Library/Application%20Support/iPhone%20Simulator/7.1/Applications/E45DAD9C-AC36-4791-BBB9-1634D78F9F2D/Property%20Calculator.app/www/index.html
+Terminating in response to SpringBoard's termination.

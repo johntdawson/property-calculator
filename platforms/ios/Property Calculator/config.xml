@@ -29,6 +29,9 @@
     <feature name="Capture">
         <param name="ios-package" value="CDVCapture" />
     </feature>
+    <feature name="Camera">
+        <param name="ios-package" value="CDVCamera" />
+    </feature>
     <name>Property Calculator</name>
     <description>
         Real Estate Investment Property Calculator for calculating real estate cash flow and equity potential.
