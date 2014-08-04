@@ -55,7 +55,6 @@
     <preference name="disable-cursor" value="false" />
     <preference name="android-minSdkVersion" value="7" />
     <preference name="android-installLocation" value="auto" />
-    <plugin name="Camera" value="CDVCamera" />
     <icon src="icon.png" />
     <icon gap:density="ldpi" gap:platform="android" src="cordova/cordova_android_36.png" />
     <icon gap:density="mdpi" gap:platform="android" src="cordova/cordova_android_48.png" />

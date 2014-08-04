@@ -29,8 +29,12 @@
 	<script src="js/jquery.mobile-1.4.3.min.js"></script>
 	<script src="js/jquery.mask.js"></script>
 	<script src="js/jquery.maskMoney.min.js"></script>
+	<script src="js/fastclick.js"></script>
   <script>
     $(document).on( "pagecreate", function() {
+
+      // Fix for 300ms click delay
+      FastClick.attach(document.body);
 
       // Default settings
       defaultData = {
@@ -625,7 +629,6 @@ LIST
 <div data-role="page" id="list" class="page">
 
 	<div id="listheader" data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">
-    <a href="camera.html" class="ui-btn ui-btn-left ui-corner-all ui-icon-camera ui-btn-icon-left ui-btn-icon-notext" >Camera</a>
 		<h1>Property Calculator</h1>
     <a id="new" href="#" class="ui-btn ui-btn-right ui-corner-all ui-icon-plus ui-btn-icon-right ui-btn-icon-notext" data-transition="slidefade">New</a>
 	</div><!-- /header -->
