@@ -29,9 +29,6 @@
     <feature name="Capture">
         <param name="ios-package" value="CDVCapture" />
     </feature>
-    <feature name="Camera">
-        <param name="ios-package" value="CDVCamera" />
-    </feature>
     <name>Property Calculator</name>
     <description>
         Real Estate Investment Property Calculator for calculating real estate cash flow and equity potential.
@@ -55,6 +52,9 @@
     <preference name="disable-cursor" value="false" />
     <preference name="android-minSdkVersion" value="7" />
     <preference name="android-installLocation" value="auto" />
+    <feature name="Camera">
+        <param name="ios-package" value="CDVCamera" />
+    </feature>
     <icon src="icon.png" />
     <icon gap:density="ldpi" gap:platform="android" src="cordova/cordova_android_36.png" />
     <icon gap:density="mdpi" gap:platform="android" src="cordova/cordova_android_48.png" />
