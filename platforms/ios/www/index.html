@@ -113,10 +113,32 @@
         $('#mail').on('click', function() {
           var subject = encodeURI("Property Details: " + propertyName);
           var body = encodeURI(
-            "Purchase Price: " + purchasePrice + "\n" +
-            "Rental Income: " + rentalIncome + "\n" +
-            "Operating Expenses: " + operatingExpenses + "\n" +
-            "Monthly Cash Flow: " + monthlyCashFlow + "\n"
+            "BASIC PURCHASE INFORMATION" + "\n" +
+            "Estimated Property Value: $" + formatMoney(estimatedPropertyValue) + "\n" +
+            "Purchase Price: $" + formatMoney(purchasePrice) + "\n" +
+            "Equity at Purchase: $" + formatMoney(equityAtPurchase) + "\n\n" +
+            "MORTGAGE CALCULATIONS" + "\n" +
+            "Loan Amount: $" + formatMoney(loanAmount) + "\n" +
+            "Down Payment ("+downPaymentPercent+"%): $" + formatMoney(downPayment) + "\n" +
+            "Closing Costs ("+closingCostsPercent+"%): $" + formatMoney(closingCosts) + "\n" +
+            "Cash at Closing: $" + formatMoney(cashAtClosing) + "\n" +
+            "Mortgage Payment: $" + formatMoney(mortgagePayment) + "\n" +
+            "Mortgage Payment (Yearly): $" + formatMoney(mortgagePaymentYearly) + "\n\n" +
+            "PROPERTY CALCULATIONS (Per Month)" + "\n" +
+            "Rental Income: $" + formatMoney(rentalIncome) + "\n" +
+            "Property Taxes: $" + formatMoney(propertyTaxes) + "\n" +
+            "Homeowners Insurance: $" + formatMoney(homeownersInsurance) + "\n" +
+            "Homeowners Association: $" + formatMoney(homeownersAssociation) + "\n" +
+            "Property Management ("+propertyManagementPercent+"%): $" + formatMoney(propertyManagement) + "\n" +
+            "Maintenance Reserve ("+maintenanceReservePercent+"%): $" + formatMoney(maintenanceReserve) + "\n" +
+            "Vacancy Allowance ("+vacancyAllowancePercent+"%): $" + formatMoney(vacancyAllowance) + "\n" +
+            "Mortgage Payment: $" + formatMoney(mortgagePayment) + "\n" +
+            "Other Expenses: $" + formatMoney(otherExpenses) + "\n\n" +
+            "TOTALS" + "\n" +
+            "Monthly Cash Flow: $" + formatMoney(monthlyCashFlow) + "\n" +
+            "Cap Rate: " + capRate.toFixed(2) + "%\n" +
+            "Cash on Cash Return: $" + cashOnCashReturn.toFixed(2) + "%\n" +
+            "Equity in Five Years: $" + formatMoney(equityInFiveYears) + "\n"
           );
           var href = "mailto:?subject="+subject+"&body="+body;
           $(this).attr('href',href)
@@ -141,23 +163,6 @@
         id = $(this).parent().attr('id');
         localStorage.removeItem(id);
         $(this).parent().remove();
-      });
-
-
-      // Camera button
-      $( document ).on( "click", '#camera', function(e) {
-        navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
-            destinationType: Camera.DestinationType.DATA_URL
-        });
-        
-        function onSuccess(imageData) {
-            var image = document.getElementById('myImage');
-            image.src = "data:image/jpeg;base64," + imageData;
-        }
-        
-        function onFail(message) {
-            alert('Failed because: ' + message);
-        }
       });
 
       // Remember scroll position
@@ -645,7 +650,6 @@ LIST
 <div data-role="page" id="list" class="page">
 
 	<div id="listheader" data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">
-    <a id="camera" href="#" class="ui-btn ui-btn-left ui-corner-all ui-icon-camera ui-btn-icon-left ui-btn-icon-notext" >Camera</a>
 		<h1>Property Calculator</h1>
     <a id="new" href="#" class="ui-btn ui-btn-right ui-corner-all ui-icon-plus ui-btn-icon-right ui-btn-icon-notext" data-transition="slidefade">New</a>
 	</div><!-- /header -->
